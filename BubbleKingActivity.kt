@@ -263,7 +263,21 @@ fun BKDefaultGradientBackground() {
             )
     )
 }
-
+@Composable
+private fun GeneratedGameBackgroundPreview(id: Int, modifier: Modifier = Modifier) {
+    when (id) {
+        12 -> StarfieldBackground(modifier = modifier)
+        13 -> OceanWavesBackground(modifier = modifier)
+        14 -> ForestBackground(modifier = modifier)
+        15 -> AuroraBorealisBackground(modifier = modifier)
+        16 -> VolcanicBackground(modifier = modifier)
+        17 -> CyberpunkCityBackground(modifier = modifier)
+        18 -> UnderwaterBackground(modifier = modifier)
+        19 -> DesertDunesBackground(modifier = modifier)
+        20 -> CandyLandBackground(modifier = modifier)
+        21 -> RetroGridBackground(modifier = modifier)
+    }
+}
 // ==================== BUBBLE VIEW ====================
 
 @Composable
@@ -1460,29 +1474,35 @@ fun BubbleKingScreen(onExit: () -> Unit) {
 
         // Background
         if (equippedBg > 0) {
-            val bgRes = when (equippedBg) {
-                1 -> R.drawable.background1
-                2 -> R.drawable.background2
-                3 -> R.drawable. background3
-                4 -> R.drawable.background4
-                5 -> R. drawable.background5
-                6 -> R.drawable.background6
-                7 -> R.drawable.background7
-                8 -> R.drawable. background8
-                9 -> R.drawable.background9
-                10 -> R.drawable.background10
-                11 -> R.drawable.background11
-                else -> 0
-            }
-            if (bgRes != 0) {
-                Image(
-                    painter = painterResource(id = bgRes),
-                    contentDescription = "game_background",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale. Crop
-                )
+            // Check if it's a generated background (IDs 12-21)
+            if (equippedBg >= 12) {
+                GeneratedGameBackgroundPreview(id = equippedBg, modifier = Modifier.fillMaxSize())
             } else {
-                BKDefaultGradientBackground()
+                // Static image backgrounds (IDs 1-11)
+                val bgRes = when (equippedBg) {
+                    1 -> R.drawable.background1
+                    2 -> R.drawable.background2
+                    3 -> R.drawable. background3
+                    4 -> R.drawable.background4
+                    5 -> R. drawable.background5
+                    6 -> R.drawable.background6
+                    7 -> R.drawable.background7
+                    8 -> R.drawable. background8
+                    9 -> R.drawable.background9
+                    10 -> R.drawable.background10
+                    11 -> R.drawable.background11
+                    else -> 0
+                }
+                if (bgRes != 0) {
+                    Image(
+                        painter = painterResource(id = bgRes),
+                        contentDescription = "game_background",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale. Crop
+                    )
+                } else {
+                    BKDefaultGradientBackground()
+                }
             }
         } else {
             BKDefaultGradientBackground()
