@@ -461,8 +461,8 @@ fun MainMenuSection() {
         Spacer(modifier = Modifier.height(16.dp))
     }
 
-    // Purchase Dialog (for buyable items 1-20, excluding 10 which is level-locked)
-    if (showConfirmDialog && confirmTargetId in 1..20 && confirmTargetId != 10) {
+    // Purchase Dialog (for buyable items, excluding 10 which is level-locked)
+    if (showConfirmDialog && isBuyableMainMenu(confirmTargetId)) {
         MMPurchaseDialog(
             mainMenuId = confirmTargetId,
             price = prices[confirmTargetId] ?:  0,
@@ -647,6 +647,8 @@ private fun isLuxPricedMainMenu(id: Int): Boolean = when(id) {
     14, 16, 18, 20 -> true  // New generated lux items
     else -> false
 }
+
+private fun isBuyableMainMenu(id: Int): Boolean = id in 1..20 && id != 10
 
 private enum class MMRarity(val color: Color, val label: String) {
     COMMON(Color(0xFF9E9E9E), "Common"),

@@ -556,8 +556,8 @@ fun BubbleCustomizationScreen() {
         }
     }
 
-    // Purchase Dialog (for buyable items 1-30, excluding 10 which is level-locked)
-    if (showConfirm && pendingBuyId != 0 && pendingBuyId != 10) {
+    // Purchase Dialog (for buyable items, excluding 10 which is level-locked)
+    if (showConfirm && pendingBuyId != 0 && isBuyableBubble(pendingBuyId)) {
         BubblePurchaseDialog(
             bubbleId = pendingBuyId,
             bubbleName = getBubbleName(pendingBuyId),
@@ -715,6 +715,8 @@ private fun isLuxPricedBubble(id: Int): Boolean = when(id) {
     13, 15, 17, 19, 21, 23, 24, 26, 29, 30 -> true  // New generated lux items
     else -> false
 }
+
+private fun isBuyableBubble(id: Int): Boolean = id in 1..30 && id != 9 && id != 10
 
 private enum class BubbleRarity(val color: Color, val label: String) {
     COMMON(Color(0xFF9E9E9E), "Common"),
@@ -1314,7 +1316,7 @@ private fun BubbleSelectorPanel(
     isLevel7BubbleUnlocked: Boolean = false,
     currentLevel: Int = 1
 ) {
-    // Include IDs 1-30 (excluding 9, includes Level 7 exclusive ID 10)
+    // Include IDs 1-30, excluding 9 (doesn't exist) and 10 (level-locked, handled separately)
     val bubbleList = (1..30).filter { it != 9 }.toList()
     val scroll = rememberScrollState()
 

@@ -452,8 +452,8 @@ fun CustomizationScreen() {
         Spacer(modifier = Modifier.height(24.dp))
     }
 
-    // Purchase Dialog (for buyable items 1-21, excluding 11 which is level-locked)
-    if (showConfirmDialog && confirmTargetId in 1..21 && confirmTargetId != 11) {
+    // Purchase Dialog (for buyable items, excluding 11 which is level-locked)
+    if (showConfirmDialog && isBuyableBackground(confirmTargetId)) {
         BGPurchaseDialog(
             backgroundId = confirmTargetId,
             price = prices[confirmTargetId] ?:  0,
@@ -702,6 +702,8 @@ private fun isLuxPricedBackground(id: Int): Boolean = when(id) {
     14, 15, 17, 20, 21 -> true  // New generated lux items
     else -> false
 }
+
+private fun isBuyableBackground(id: Int): Boolean = id in 1..21 && id != 11
 
 @Composable
 private fun GeneratedBackgroundPreview(id: Int, modifier: Modifier = Modifier) {
