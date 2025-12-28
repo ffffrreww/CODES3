@@ -107,6 +107,18 @@ fun CustomizationScreen() {
     val purchased11Flow by ds. isBackgroundPurchasedFlow(11).collectAsState(initial = false)
     val isLevel7BgUnlocked by ds. isLevel7BackgroundUnlockedFlow().collectAsState(initial = false)
 
+    // Flows for generated backgrounds 12-21
+    val purchased12Flow by ds.isBackgroundPurchasedFlow(12).collectAsState(initial = false)
+    val purchased13Flow by ds.isBackgroundPurchasedFlow(13).collectAsState(initial = false)
+    val purchased14Flow by ds.isBackgroundPurchasedFlow(14).collectAsState(initial = false)
+    val purchased15Flow by ds.isBackgroundPurchasedFlow(15).collectAsState(initial = false)
+    val purchased16Flow by ds.isBackgroundPurchasedFlow(16).collectAsState(initial = false)
+    val purchased17Flow by ds.isBackgroundPurchasedFlow(17).collectAsState(initial = false)
+    val purchased18Flow by ds.isBackgroundPurchasedFlow(18).collectAsState(initial = false)
+    val purchased19Flow by ds.isBackgroundPurchasedFlow(19).collectAsState(initial = false)
+    val purchased20Flow by ds.isBackgroundPurchasedFlow(20).collectAsState(initial = false)
+    val purchased21Flow by ds.isBackgroundPurchasedFlow(21).collectAsState(initial = false)
+
     // Get current player level
     val totalPops by ds.totalPopsFlow().collectAsState(initial = 0)
     val currentLevel = ds.calculateLevelFromPops(totalPops)
@@ -114,10 +126,12 @@ fun CustomizationScreen() {
     val purchasedFlagsCollected = listOf(
         purchased1Flow, purchased2Flow, purchased3Flow, purchased4Flow, purchased5Flow,
         purchased6Flow, purchased7Flow, purchased8Flow, purchased9Flow, purchased10Flow,
-        purchased11Flow || isLevel7BgUnlocked
+        purchased11Flow || isLevel7BgUnlocked,
+        purchased12Flow, purchased13Flow, purchased14Flow, purchased15Flow, purchased16Flow,
+        purchased17Flow, purchased18Flow, purchased19Flow, purchased20Flow, purchased21Flow
     )
 
-    val localPurchasedFlags = remember { mutableStateListOf<Boolean>().apply { repeat(11) { add(false) } } }
+    val localPurchasedFlags = remember { mutableStateListOf<Boolean>().apply { repeat(21) { add(false) } } }
     LaunchedEffect(purchasedFlagsCollected) {
         purchasedFlagsCollected.forEachIndexed { i, v ->
             if (localPurchasedFlags. getOrNull(i) != v) localPurchasedFlags[i] = v
@@ -140,12 +154,14 @@ fun CustomizationScreen() {
         if (selectedBg == 0) selectedBg = equipped
     }
 
-    // Prices - ID 11 has no price (level unlock only)
+    // Prices - ID 11 has no price (level unlock only), IDs 12-21 are generated backgrounds
     val prices = remember {
         mapOf(
             1 to 300, 2 to 600, 3 to 1000, 4 to 1500, 5 to 2000, 6 to 4000,
             7 to 30, 8 to 45, 9 to 75, 10 to 120,
-            11 to 0 // Level 7 unlock - no price
+            11 to 0, // Level 7 unlock - no price
+            12 to 600, 13 to 800, 14 to 50, 15 to 75, 16 to 1200,
+            17 to 85, 18 to 1500, 19 to 1800, 20 to 100, 21 to 100
         )
     }
 
@@ -436,18 +452,19 @@ fun CustomizationScreen() {
         Spacer(modifier = Modifier.height(24.dp))
     }
 
-    // Purchase Dialog (for buyable items)
-    if (showConfirmDialog && confirmTargetId in 1..10) {
+    // Purchase Dialog (for buyable items, excluding 11 which is level-locked)
+    if (showConfirmDialog && isBuyableBackground(confirmTargetId)) {
         BGPurchaseDialog(
             backgroundId = confirmTargetId,
             price = prices[confirmTargetId] ?:  0,
-            isLuxPriced = confirmTargetId >= 7,
+            isLuxPriced = isLuxPricedBackground(confirmTargetId),
             onConfirm = {
                 val id = confirmTargetId
                 val price = prices[id] ?: 0
-                val isLux = id >= 7
+                val isLux = isLuxPricedBackground(id)
 
-                if (id in 1..10) {
+
+                if (id in 1..21) {
                     localPurchasedFlags[id - 1] = true
                     equipped = id
                     selectedBg = id
@@ -651,6 +668,16 @@ private fun getBackgroundName(id: Int): String = when (id) {
     9 -> "Peak"
     10 -> "Mountains"
     11 -> "🌟 Level 7 Exclusive"
+    12 -> "✨ Starfield"
+    13 -> "✨ Ocean Waves"
+    14 -> "✨ Forest"
+    15 -> "✨ Aurora Borealis"
+    16 -> "✨ Volcanic"
+    17 -> "✨ Cyberpunk City"
+    18 -> "✨ Underwater"
+    19 -> "✨ Desert Dunes"
+    20 -> "✨ Candy Land"
+    21 -> "✨ Retro Grid"
     else -> "Default"
 }
 
@@ -661,7 +688,38 @@ private fun getBackgroundRarity(id: Int): BGRarity = when (id) {
     7, 8 -> BGRarity.LEGENDARY
     9, 10 -> BGRarity.MYTHIC
     11 -> BGRarity. EXCLUSIVE
+    12, 13 -> BGRarity.RARE
+    14, 15 -> BGRarity.EPIC
+    16, 17 -> BGRarity.LEGENDARY
+    18, 19, 20 -> BGRarity.MYTHIC
+    21 -> BGRarity.EXCLUSIVE
     else -> BGRarity.COMMON
+}
+
+private fun isGeneratedBackground(id: Int): Boolean = id in 12..21
+
+private fun isLuxPricedBackground(id: Int): Boolean = when(id) {
+    7, 8, 9, 10 -> true  // Original lux items
+    14, 15, 17, 20, 21 -> true  // New generated lux items
+    else -> false
+}
+
+private fun isBuyableBackground(id: Int): Boolean = id in 1..21 && id != 11
+
+@Composable
+private fun GeneratedBackgroundPreview(id: Int, modifier: Modifier = Modifier) {
+    when (id) {
+        12 -> StarfieldBackground(modifier = modifier)
+        13 -> OceanWavesBackground(modifier = modifier)
+        14 -> ForestBackground(modifier = modifier)
+        15 -> AuroraBorealisBackground(modifier = modifier)
+        16 -> VolcanicBackground(modifier = modifier)
+        17 -> CyberpunkCityBackground(modifier = modifier)
+        18 -> UnderwaterBackground(modifier = modifier)
+        19 -> DesertDunesBackground(modifier = modifier)
+        20 -> CandyLandBackground(modifier = modifier)
+        21 -> RetroGridBackground(modifier = modifier)
+    }
 }
 
 private enum class BGRarity(val color: Color, val label: String) {
@@ -768,6 +826,7 @@ private fun BGPreviewPanel(
             BGParticlesBackground(rarityColor = rarity.color)
 
             val drawableId = getBackgroundDrawable(selectedBg)
+            val isGenerated = isGeneratedBackground(selectedBg)
             if (selectedBg == 0) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(text = "🌌", fontSize = 48. sp)
@@ -777,6 +836,17 @@ private fun BGPreviewPanel(
                         fontSize = 14,
                         color = Color.White. copy(alpha = 0.6f)
                     )
+                }
+            } else if (isGenerated) {
+                // Show generated/animated background
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(12.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .alpha(if (isLevelLocked) 0.5f else 1f)
+                ) {
+                    GeneratedBackgroundPreview(id = selectedBg, modifier = Modifier.fillMaxSize())
                 }
             } else if (drawableId != 0) {
                 Image(
@@ -835,6 +905,25 @@ private fun BGPreviewPanel(
                         text = "✓ EQUIPPED",
                         fontSize = 10. sp,
                         fontWeight = FontWeight. Bold,
+                        color = Color.White
+                    )
+                }
+            }
+
+            // Animated badge for generated backgrounds
+            if (isGenerated && !isLevelLocked) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(8.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color(0xFFFF6D00))
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = "✨ ANIMATED",
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
                 }
@@ -1199,7 +1288,7 @@ private fun BGSelectorPanel(
     isLevel7BgUnlocked: Boolean = false,
     currentLevel: Int = 1
 ) {
-    val bgList = (1.. 11).toList() // Now includes ID 11
+    val bgList = (1..21).toList() // Now includes IDs 1-21
     val gridState = rememberLazyGridState()
 
     Column(
@@ -1334,7 +1423,18 @@ private fun BGSelectorItem(
                     .background(Color(0xFF0A0A15)),
                 contentAlignment = Alignment.Center
             ) {
-                if (drawableId != 0) {
+                val isGenerated = isGeneratedBackground(id)
+
+                if (isGenerated) {
+                    // Show generated background preview
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .alpha(if (isLevelLocked) 0.4f else 1f)
+                    ) {
+                        GeneratedBackgroundPreview(id = id, modifier = Modifier.fillMaxSize())
+                    }
+                } else if (drawableId != 0) {
                     Image(
                         painter = painterResource(id = drawableId),
                         contentDescription = "bg_$id",
@@ -1393,6 +1493,23 @@ private fun BGSelectorItem(
                     }
                 }
 
+                // Animated badge for generated backgrounds
+                if (isGenerated && !isLevelLocked) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(4.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(Color(0xFFFF6D00))
+                            .padding(horizontal = 4.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = "✨",
+                            fontSize = 10.sp,
+                            color = Color.White
+                        )
+                    }
+                }
                 // Rarity indicator
                 Box(
                     modifier = Modifier
