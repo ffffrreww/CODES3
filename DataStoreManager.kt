@@ -97,6 +97,16 @@ class DataStoreManager(private val context: Context) {
         val PURCHASE_BG_9 = intPreferencesKey("purchase_bg_9")
         val PURCHASE_BG_10 = intPreferencesKey("purchase_bg_10")
         val PURCHASE_BG_11 = intPreferencesKey("purchase_bg_11")
+        val PURCHASE_BG_12 = intPreferencesKey("purchase_bg_12")
+        val PURCHASE_BG_13 = intPreferencesKey("purchase_bg_13")
+        val PURCHASE_BG_14 = intPreferencesKey("purchase_bg_14")
+        val PURCHASE_BG_15 = intPreferencesKey("purchase_bg_15")
+        val PURCHASE_BG_16 = intPreferencesKey("purchase_bg_16")
+        val PURCHASE_BG_17 = intPreferencesKey("purchase_bg_17")
+        val PURCHASE_BG_18 = intPreferencesKey("purchase_bg_18")
+        val PURCHASE_BG_19 = intPreferencesKey("purchase_bg_19")
+        val PURCHASE_BG_20 = intPreferencesKey("purchase_bg_20")
+        val PURCHASE_BG_21 = intPreferencesKey("purchase_bg_21")
         val EQUIPPED_BG = intPreferencesKey("equipped_bg")
 
         val PURCHASE_BUBBLE_1 = intPreferencesKey("purchase_bubble_1")
@@ -109,6 +119,26 @@ class DataStoreManager(private val context: Context) {
         val PURCHASE_BUBBLE_8 = intPreferencesKey("purchase_bubble_8")
         val PURCHASE_BUBBLE_9 = intPreferencesKey("purchase_bubble_9")
         val PURCHASE_BUBBLE_10 = intPreferencesKey("purchase_bubble_10")
+        val PURCHASE_BUBBLE_11 = intPreferencesKey("purchase_bubble_11")
+        val PURCHASE_BUBBLE_12 = intPreferencesKey("purchase_bubble_12")
+        val PURCHASE_BUBBLE_13 = intPreferencesKey("purchase_bubble_13")
+        val PURCHASE_BUBBLE_14 = intPreferencesKey("purchase_bubble_14")
+        val PURCHASE_BUBBLE_15 = intPreferencesKey("purchase_bubble_15")
+        val PURCHASE_BUBBLE_16 = intPreferencesKey("purchase_bubble_16")
+        val PURCHASE_BUBBLE_17 = intPreferencesKey("purchase_bubble_17")
+        val PURCHASE_BUBBLE_18 = intPreferencesKey("purchase_bubble_18")
+        val PURCHASE_BUBBLE_19 = intPreferencesKey("purchase_bubble_19")
+        val PURCHASE_BUBBLE_20 = intPreferencesKey("purchase_bubble_20")
+        val PURCHASE_BUBBLE_21 = intPreferencesKey("purchase_bubble_21")
+        val PURCHASE_BUBBLE_22 = intPreferencesKey("purchase_bubble_22")
+        val PURCHASE_BUBBLE_23 = intPreferencesKey("purchase_bubble_23")
+        val PURCHASE_BUBBLE_24 = intPreferencesKey("purchase_bubble_24")
+        val PURCHASE_BUBBLE_25 = intPreferencesKey("purchase_bubble_25")
+        val PURCHASE_BUBBLE_26 = intPreferencesKey("purchase_bubble_26")
+        val PURCHASE_BUBBLE_27 = intPreferencesKey("purchase_bubble_27")
+        val PURCHASE_BUBBLE_28 = intPreferencesKey("purchase_bubble_28")
+        val PURCHASE_BUBBLE_29 = intPreferencesKey("purchase_bubble_29")
+        val PURCHASE_BUBBLE_30 = intPreferencesKey("purchase_bubble_30")
         val EQUIPPED_BUBBLE = intPreferencesKey("equipped_bubble")
 
         val PURCHASE_MAINMENU_1 = intPreferencesKey("purchase_mainmenu_1")
@@ -121,6 +151,16 @@ class DataStoreManager(private val context: Context) {
         val PURCHASE_MAINMENU_8 = intPreferencesKey("purchase_mainmenu_8")
         val PURCHASE_MAINMENU_9 = intPreferencesKey("purchase_mainmenu_9")
         val PURCHASE_MAINMENU_10 = intPreferencesKey("purchase_mainmenu_10")
+        val PURCHASE_MAINMENU_11 = intPreferencesKey("purchase_mainmenu_11")
+        val PURCHASE_MAINMENU_12 = intPreferencesKey("purchase_mainmenu_12")
+        val PURCHASE_MAINMENU_13 = intPreferencesKey("purchase_mainmenu_13")
+        val PURCHASE_MAINMENU_14 = intPreferencesKey("purchase_mainmenu_14")
+        val PURCHASE_MAINMENU_15 = intPreferencesKey("purchase_mainmenu_15")
+        val PURCHASE_MAINMENU_16 = intPreferencesKey("purchase_mainmenu_16")
+        val PURCHASE_MAINMENU_17 = intPreferencesKey("purchase_mainmenu_17")
+        val PURCHASE_MAINMENU_18 = intPreferencesKey("purchase_mainmenu_18")
+        val PURCHASE_MAINMENU_19 = intPreferencesKey("purchase_mainmenu_19")
+        val PURCHASE_MAINMENU_20 = intPreferencesKey("purchase_mainmenu_20")
         val EQUIPPED_MAINMENU = intPreferencesKey("equipped_mainmenu")
 
         val PROFILE_DRAWABLE = intPreferencesKey("profile_drawable")
@@ -303,7 +343,10 @@ class DataStoreManager(private val context: Context) {
         1 -> PURCHASE_BG_1; 2 -> PURCHASE_BG_2; 3 -> PURCHASE_BG_3
         4 -> PURCHASE_BG_4; 5 -> PURCHASE_BG_5; 6 -> PURCHASE_BG_6
         7 -> PURCHASE_BG_7; 8 -> PURCHASE_BG_8; 9 -> PURCHASE_BG_9
-        10 -> PURCHASE_BG_10; 11 -> PURCHASE_BG_11
+        10 -> PURCHASE_BG_10; 11 -> PURCHASE_BG_11; 12 -> PURCHASE_BG_12
+        13 -> PURCHASE_BG_13; 14 -> PURCHASE_BG_14; 15 -> PURCHASE_BG_15
+        16 -> PURCHASE_BG_16; 17 -> PURCHASE_BG_17; 18 -> PURCHASE_BG_18
+        19 -> PURCHASE_BG_19; 20 -> PURCHASE_BG_20; 21 -> PURCHASE_BG_21
         else -> PURCHASE_BG_1
     }
 
@@ -381,7 +424,13 @@ class DataStoreManager(private val context: Context) {
         1 -> PURCHASE_BUBBLE_1; 2 -> PURCHASE_BUBBLE_2; 3 -> PURCHASE_BUBBLE_3
         4 -> PURCHASE_BUBBLE_4; 5 -> PURCHASE_BUBBLE_5; 6 -> PURCHASE_BUBBLE_6
         7 -> PURCHASE_BUBBLE_7; 8 -> PURCHASE_BUBBLE_8; 9 -> PURCHASE_BUBBLE_9
-        10 -> PURCHASE_BUBBLE_10
+        10 -> PURCHASE_BUBBLE_10; 11 -> PURCHASE_BUBBLE_11; 12 -> PURCHASE_BUBBLE_12
+        13 -> PURCHASE_BUBBLE_13; 14 -> PURCHASE_BUBBLE_14; 15 -> PURCHASE_BUBBLE_15
+        16 -> PURCHASE_BUBBLE_16; 17 -> PURCHASE_BUBBLE_17; 18 -> PURCHASE_BUBBLE_18
+        19 -> PURCHASE_BUBBLE_19; 20 -> PURCHASE_BUBBLE_20; 21 -> PURCHASE_BUBBLE_21
+        22 -> PURCHASE_BUBBLE_22; 23 -> PURCHASE_BUBBLE_23; 24 -> PURCHASE_BUBBLE_24
+        25 -> PURCHASE_BUBBLE_25; 26 -> PURCHASE_BUBBLE_26; 27 -> PURCHASE_BUBBLE_27
+        28 -> PURCHASE_BUBBLE_28; 29 -> PURCHASE_BUBBLE_29; 30 -> PURCHASE_BUBBLE_30
         else -> PURCHASE_BUBBLE_1
     }
 
@@ -459,7 +508,10 @@ class DataStoreManager(private val context: Context) {
         1 -> PURCHASE_MAINMENU_1; 2 -> PURCHASE_MAINMENU_2; 3 -> PURCHASE_MAINMENU_3
         4 -> PURCHASE_MAINMENU_4; 5 -> PURCHASE_MAINMENU_5; 6 -> PURCHASE_MAINMENU_6
         7 -> PURCHASE_MAINMENU_7; 8 -> PURCHASE_MAINMENU_8; 9 -> PURCHASE_MAINMENU_9
-        10 -> PURCHASE_MAINMENU_10
+        10 -> PURCHASE_MAINMENU_10; 11 -> PURCHASE_MAINMENU_11; 12 -> PURCHASE_MAINMENU_12
+        13 -> PURCHASE_MAINMENU_13; 14 -> PURCHASE_MAINMENU_14; 15 -> PURCHASE_MAINMENU_15
+        16 -> PURCHASE_MAINMENU_16; 17 -> PURCHASE_MAINMENU_17; 18 -> PURCHASE_MAINMENU_18
+        19 -> PURCHASE_MAINMENU_19; 20 -> PURCHASE_MAINMENU_20
         else -> PURCHASE_MAINMENU_1
     }
 
