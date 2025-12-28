@@ -102,6 +102,17 @@ fun MainMenuSection() {
     val purchased10Flow by ds. isMainMenuPurchasedFlow(10).collectAsState(initial = false)
     val isLevel7MainMenuUnlocked by ds.isLevel7MainMenuUnlockedFlow().collectAsState(initial = false)
 
+    // Flows for generated main menus 11-20
+    val purchased11Flow by ds.isMainMenuPurchasedFlow(11).collectAsState(initial = false)
+    val purchased12Flow by ds.isMainMenuPurchasedFlow(12).collectAsState(initial = false)
+    val purchased13Flow by ds.isMainMenuPurchasedFlow(13).collectAsState(initial = false)
+    val purchased14Flow by ds.isMainMenuPurchasedFlow(14).collectAsState(initial = false)
+    val purchased15Flow by ds.isMainMenuPurchasedFlow(15).collectAsState(initial = false)
+    val purchased16Flow by ds.isMainMenuPurchasedFlow(16).collectAsState(initial = false)
+    val purchased17Flow by ds.isMainMenuPurchasedFlow(17).collectAsState(initial = false)
+    val purchased18Flow by ds.isMainMenuPurchasedFlow(18).collectAsState(initial = false)
+    val purchased19Flow by ds.isMainMenuPurchasedFlow(19).collectAsState(initial = false)
+    val purchased20Flow by ds.isMainMenuPurchasedFlow(20).collectAsState(initial = false)
     // Get current player level
     val totalPops by ds.totalPopsFlow().collectAsState(initial = 0)
     val currentLevel = ds.calculateLevelFromPops(totalPops)
@@ -120,6 +131,16 @@ fun MainMenuSection() {
     var purchased8Local by remember { mutableStateOf(purchased8Flow) }
     var purchased9Local by remember { mutableStateOf(purchased9Flow) }
     var purchased10Local by remember { mutableStateOf(purchased10Flow || isLevel7MainMenuUnlocked) }
+    var purchased11Local by remember { mutableStateOf(purchased11Flow) }
+    var purchased12Local by remember { mutableStateOf(purchased12Flow) }
+    var purchased13Local by remember { mutableStateOf(purchased13Flow) }
+    var purchased14Local by remember { mutableStateOf(purchased14Flow) }
+    var purchased15Local by remember { mutableStateOf(purchased15Flow) }
+    var purchased16Local by remember { mutableStateOf(purchased16Flow) }
+    var purchased17Local by remember { mutableStateOf(purchased17Flow) }
+    var purchased18Local by remember { mutableStateOf(purchased18Flow) }
+    var purchased19Local by remember { mutableStateOf(purchased19Flow) }
+    var purchased20Local by remember { mutableStateOf(purchased20Flow) }
 
     LaunchedEffect(purchased1Flow) { purchased1Local = purchased1Flow }
     LaunchedEffect(purchased2Flow) { purchased2Local = purchased2Flow }
@@ -133,14 +154,26 @@ fun MainMenuSection() {
     LaunchedEffect(purchased10Flow, isLevel7MainMenuUnlocked) {
         purchased10Local = purchased10Flow || isLevel7MainMenuUnlocked
     }
+    LaunchedEffect(purchased11Flow) { purchased11Local = purchased11Flow }
+    LaunchedEffect(purchased12Flow) { purchased12Local = purchased12Flow }
+    LaunchedEffect(purchased13Flow) { purchased13Local = purchased13Flow }
+    LaunchedEffect(purchased14Flow) { purchased14Local = purchased14Flow }
+    LaunchedEffect(purchased15Flow) { purchased15Local = purchased15Flow }
+    LaunchedEffect(purchased16Flow) { purchased16Local = purchased16Flow }
+    LaunchedEffect(purchased17Flow) { purchased17Local = purchased17Flow }
+    LaunchedEffect(purchased18Flow) { purchased18Local = purchased18Flow }
+    LaunchedEffect(purchased19Flow) { purchased19Local = purchased19Flow }
+    LaunchedEffect(purchased20Flow) { purchased20Local = purchased20Flow }
 
     var selectedMain by remember { mutableIntStateOf(if (equippedLocal > 0) equippedLocal else 0) }
 
-    // Prices - ID 10 has no price (level unlock only)
+    // Prices - ID 10 has no price (level unlock only), IDs 11-20 are generated main menus
     val prices = mapOf(
         1 to 500, 2 to 1000, 3 to 1500, 4 to 2000, 5 to 4000,
         6 to 50, 7 to 80, 8 to 120, 9 to 200,
-        10 to 0 // Level 7 unlock - no price
+        10 to 0, // Level 7 unlock - no price
+        11 to 800, 12 to 900, 13 to 1000, 14 to 65, 15 to 1200,
+        16 to 75, 17 to 1400, 18 to 85, 19 to 1500, 20 to 95
     )
 
     var showConfirmDialog by remember { mutableStateOf(false) }
@@ -151,7 +184,9 @@ fun MainMenuSection() {
 
     val purchasedFlags = listOf(
         purchased1Local, purchased2Local, purchased3Local, purchased4Local, purchased5Local,
-        purchased6Local, purchased7Local, purchased8Local, purchased9Local, purchased10Local
+        purchased6Local, purchased7Local, purchased8Local, purchased9Local, purchased10Local,
+        purchased11Local, purchased12Local, purchased13Local, purchased14Local, purchased15Local,
+        purchased16Local, purchased17Local, purchased18Local, purchased19Local, purchased20Local
     )
 
     fun isPurchased(id:  Int): Boolean = purchasedFlags. getOrNull(id - 1) ?: false
@@ -168,6 +203,16 @@ fun MainMenuSection() {
             8 -> purchased8Local = value
             9 -> purchased9Local = value
             10 -> purchased10Local = value
+            11 -> purchased11Local = value
+            12 -> purchased12Local = value
+            13 -> purchased13Local = value
+            14 -> purchased14Local = value
+            15 -> purchased15Local = value
+            16 -> purchased16Local = value
+            17 -> purchased17Local = value
+            18 -> purchased18Local = value
+            19 -> purchased19Local = value
+            20 -> purchased20Local = value
         }
     }
 
@@ -415,16 +460,16 @@ fun MainMenuSection() {
         Spacer(modifier = Modifier.height(16.dp))
     }
 
-    // Purchase Dialog (for buyable items)
-    if (showConfirmDialog && confirmTargetId in 1..9) {
+    // Purchase Dialog (for buyable items, excluding 10 which is level-locked)
+    if (showConfirmDialog && isBuyableMainMenu(confirmTargetId)) {
         MMPurchaseDialog(
             mainMenuId = confirmTargetId,
             price = prices[confirmTargetId] ?:  0,
-            isLuxPriced = confirmTargetId >= 6,
+            isLuxPriced = isLuxPricedMainMenu(confirmTargetId),
             onConfirm = {
                 val id = confirmTargetId
                 val price = prices[id] ?: 0
-                val isLuxPriced = id >= 6
+                val isLuxPriced = isLuxPricedMainMenu(id)
 
                 setPurchased(id, true)
                 equippedLocal = id
@@ -550,6 +595,16 @@ private fun getMainMenuName(id: Int): String = when (id) {
     8 -> "Feather Girl"
     9 -> "Space Experience"
     10 -> "🌟 Level 7 Exclusive"
+    11 -> "✨ Neon Pulse"
+    12 -> "✨ Geometric Waves"
+    13 -> "✨ Particle Field"
+    14 -> "✨ Gradient Mesh"
+    15 -> "✨ Matrix Rain"
+    16 -> "✨ Cosmic Nebula"
+    17 -> "✨ Liquid Metal"
+    18 -> "✨ Fire & Ice"
+    19 -> "✨ Honeycomb"
+    20 -> "✨ Aurora Dreams"
     else -> "Default"
 }
 
@@ -560,8 +615,38 @@ private fun getMainMenuRarity(id: Int): MMRarity = when (id) {
     6, 7 -> MMRarity.LEGENDARY
     8, 9 -> MMRarity.MYTHIC
     10 -> MMRarity. EXCLUSIVE
+    11, 12 -> MMRarity.RARE
+    13, 14 -> MMRarity.EPIC
+    15, 16, 17 -> MMRarity.LEGENDARY
+    18, 19 -> MMRarity.MYTHIC
+    20 -> MMRarity.EXCLUSIVE
     else -> MMRarity.COMMON
 }
+private fun isGeneratedMainMenu(id: Int): Boolean = id in 11..20
+
+@Composable
+private fun GeneratedMainMenuPreview(id: Int, modifier: Modifier = Modifier) {
+    when (id) {
+        11 -> NeonPulseMainMenu(modifier = modifier)
+        12 -> GeometricWavesMainMenu(modifier = modifier)
+        13 -> ParticleFieldMainMenu(modifier = modifier)
+        14 -> GradientMeshMainMenu(modifier = modifier)
+        15 -> MatrixRainMainMenu(modifier = modifier)
+        16 -> CosmicNebulaMainMenu(modifier = modifier)
+        17 -> LiquidMetalMainMenu(modifier = modifier)
+        18 -> FireIceMainMenu(modifier = modifier)
+        19 -> HoneycombMainMenu(modifier = modifier)
+        20 -> AuroraDreamsMainMenu(modifier = modifier)
+    }
+}
+
+private fun isLuxPricedMainMenu(id: Int): Boolean = when(id) {
+    6, 7, 8, 9 -> true  // Original lux items
+    14, 16, 18, 20 -> true  // New generated lux items
+    else -> false
+}
+
+private fun isBuyableMainMenu(id: Int): Boolean = id in 1..20 && id != 10
 
 private enum class MMRarity(val color: Color, val label: String) {
     COMMON(Color(0xFF9E9E9E), "Common"),
@@ -694,6 +779,7 @@ private fun MMPreviewPanel(
             MMParticlesBackground(rarityColor = rarity.color)
 
             val drawableId = getMainMenuDrawable(selectedMain)
+            val isGenerated = isGeneratedMainMenu(selectedMain)
             if (selectedMain == 0) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(text = "🏠", fontSize = 48. sp)
@@ -703,6 +789,17 @@ private fun MMPreviewPanel(
                         fontSize = 14,
                         color = Color.White. copy(alpha = 0.6f)
                     )
+                }
+            } else if (isGenerated) {
+                // Show generated main menu
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(12.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .alpha(if (isLevelLocked) 0.5f else 1f)
+                ) {
+                    GeneratedMainMenuPreview(id = selectedMain, modifier = Modifier.fillMaxSize())
                 }
             } else if (drawableId != 0) {
                 Image(
@@ -742,6 +839,25 @@ private fun MMPreviewPanel(
                             text = "Current:  Level $currentLevel",
                             fontSize = 12,
                             color = Color. White.copy(alpha = 0.7f)
+                        )
+                    }
+                }
+
+                // Animated badge for generated main menus
+                if (isGenerated && !isLevelLocked) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(8.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xFFFF6D00))
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = "✨ ANIMATED",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
                         )
                     }
                 }
@@ -1123,8 +1239,8 @@ private fun MMSelectorPanel(
     isLevel7MainMenuUnlocked: Boolean = false,
     currentLevel: Int = 1
 ) {
-    // Include ID 10 (Level 7 exclusive)
-    val mainList = listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    // Include IDs 1-20 (includes Level 7 exclusive ID 10)
+    val mainList = (1..20).toList()
     val gridState = rememberLazyGridState()
 
     Column(
@@ -1259,7 +1375,18 @@ private fun MMSelectorItem(
                     .background(Color(0xFF0A0A15)),
                 contentAlignment = Alignment.Center
             ) {
-                if (drawableId != 0) {
+                val isGenerated = isGeneratedMainMenu(id)
+
+                if (isGenerated) {
+                    // Show generated main menu preview
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .alpha(if (isLevelLocked) 0.4f else 1f)
+                    ) {
+                        GeneratedMainMenuPreview(id = id, modifier = Modifier.fillMaxSize())
+                    }
+                } else if (drawableId != 0) {
                     Image(
                         painter = painterResource(id = drawableId),
                         contentDescription = "mainmenu_$id",
