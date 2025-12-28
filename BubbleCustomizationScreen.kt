@@ -90,9 +90,31 @@ fun BubbleCustomizationScreen() {
     val purchased7Flow by ds. isBubblePurchasedFlow(7).collectAsState(initial = false)
     val purchased8Flow by ds.isBubblePurchasedFlow(8).collectAsState(initial = false)
 
-    // Level 7 exclusive bubble (ID 9 or 10)
+    // Level 7 exclusive bubble (ID 10)
     val purchased10Flow by ds.isBubblePurchasedFlow(10).collectAsState(initial = false)
     val isLevel7BubbleUnlocked by ds. isLevel7BubbleUnlockedFlow().collectAsState(initial = false)
+    
+    // Flows for generated bubbles 11-30
+    val purchased11Flow by ds.isBubblePurchasedFlow(11).collectAsState(initial = false)
+    val purchased12Flow by ds.isBubblePurchasedFlow(12).collectAsState(initial = false)
+    val purchased13Flow by ds.isBubblePurchasedFlow(13).collectAsState(initial = false)
+    val purchased14Flow by ds.isBubblePurchasedFlow(14).collectAsState(initial = false)
+    val purchased15Flow by ds.isBubblePurchasedFlow(15).collectAsState(initial = false)
+    val purchased16Flow by ds.isBubblePurchasedFlow(16).collectAsState(initial = false)
+    val purchased17Flow by ds.isBubblePurchasedFlow(17).collectAsState(initial = false)
+    val purchased18Flow by ds.isBubblePurchasedFlow(18).collectAsState(initial = false)
+    val purchased19Flow by ds.isBubblePurchasedFlow(19).collectAsState(initial = false)
+    val purchased20Flow by ds.isBubblePurchasedFlow(20).collectAsState(initial = false)
+    val purchased21Flow by ds.isBubblePurchasedFlow(21).collectAsState(initial = false)
+    val purchased22Flow by ds.isBubblePurchasedFlow(22).collectAsState(initial = false)
+    val purchased23Flow by ds.isBubblePurchasedFlow(23).collectAsState(initial = false)
+    val purchased24Flow by ds.isBubblePurchasedFlow(24).collectAsState(initial = false)
+    val purchased25Flow by ds.isBubblePurchasedFlow(25).collectAsState(initial = false)
+    val purchased26Flow by ds.isBubblePurchasedFlow(26).collectAsState(initial = false)
+    val purchased27Flow by ds.isBubblePurchasedFlow(27).collectAsState(initial = false)
+    val purchased28Flow by ds.isBubblePurchasedFlow(28).collectAsState(initial = false)
+    val purchased29Flow by ds.isBubblePurchasedFlow(29).collectAsState(initial = false)
+    val purchased30Flow by ds.isBubblePurchasedFlow(30).collectAsState(initial = false)
 
     // Get current player level
     val totalPops by ds.totalPopsFlow().collectAsState(initial = 0)
@@ -110,6 +132,26 @@ fun BubbleCustomizationScreen() {
     var purchased7Local by remember { mutableStateOf(purchased7Flow) }
     var purchased8Local by remember { mutableStateOf(purchased8Flow) }
     var purchased10Local by remember { mutableStateOf(purchased10Flow || isLevel7BubbleUnlocked) }
+    var purchased11Local by remember { mutableStateOf(purchased11Flow) }
+    var purchased12Local by remember { mutableStateOf(purchased12Flow) }
+    var purchased13Local by remember { mutableStateOf(purchased13Flow) }
+    var purchased14Local by remember { mutableStateOf(purchased14Flow) }
+    var purchased15Local by remember { mutableStateOf(purchased15Flow) }
+    var purchased16Local by remember { mutableStateOf(purchased16Flow) }
+    var purchased17Local by remember { mutableStateOf(purchased17Flow) }
+    var purchased18Local by remember { mutableStateOf(purchased18Flow) }
+    var purchased19Local by remember { mutableStateOf(purchased19Flow) }
+    var purchased20Local by remember { mutableStateOf(purchased20Flow) }
+    var purchased21Local by remember { mutableStateOf(purchased21Flow) }
+    var purchased22Local by remember { mutableStateOf(purchased22Flow) }
+    var purchased23Local by remember { mutableStateOf(purchased23Flow) }
+    var purchased24Local by remember { mutableStateOf(purchased24Flow) }
+    var purchased25Local by remember { mutableStateOf(purchased25Flow) }
+    var purchased26Local by remember { mutableStateOf(purchased26Flow) }
+    var purchased27Local by remember { mutableStateOf(purchased27Flow) }
+    var purchased28Local by remember { mutableStateOf(purchased28Flow) }
+    var purchased29Local by remember { mutableStateOf(purchased29Flow) }
+    var purchased30Local by remember { mutableStateOf(purchased30Flow) }
 
     LaunchedEffect(purchased1Flow) { purchased1Local = purchased1Flow }
     LaunchedEffect(purchased2Flow) { purchased2Local = purchased2Flow }
@@ -122,17 +164,41 @@ fun BubbleCustomizationScreen() {
     LaunchedEffect(purchased10Flow, isLevel7BubbleUnlocked) {
         purchased10Local = purchased10Flow || isLevel7BubbleUnlocked
     }
+    LaunchedEffect(purchased11Flow) { purchased11Local = purchased11Flow }
+    LaunchedEffect(purchased12Flow) { purchased12Local = purchased12Flow }
+    LaunchedEffect(purchased13Flow) { purchased13Local = purchased13Flow }
+    LaunchedEffect(purchased14Flow) { purchased14Local = purchased14Flow }
+    LaunchedEffect(purchased15Flow) { purchased15Local = purchased15Flow }
+    LaunchedEffect(purchased16Flow) { purchased16Local = purchased16Flow }
+    LaunchedEffect(purchased17Flow) { purchased17Local = purchased17Flow }
+    LaunchedEffect(purchased18Flow) { purchased18Local = purchased18Flow }
+    LaunchedEffect(purchased19Flow) { purchased19Local = purchased19Flow }
+    LaunchedEffect(purchased20Flow) { purchased20Local = purchased20Flow }
+    LaunchedEffect(purchased21Flow) { purchased21Local = purchased21Flow }
+    LaunchedEffect(purchased22Flow) { purchased22Local = purchased22Flow }
+    LaunchedEffect(purchased23Flow) { purchased23Local = purchased23Flow }
+    LaunchedEffect(purchased24Flow) { purchased24Local = purchased24Flow }
+    LaunchedEffect(purchased25Flow) { purchased25Local = purchased25Flow }
+    LaunchedEffect(purchased26Flow) { purchased26Local = purchased26Flow }
+    LaunchedEffect(purchased27Flow) { purchased27Local = purchased27Flow }
+    LaunchedEffect(purchased28Flow) { purchased28Local = purchased28Flow }
+    LaunchedEffect(purchased29Flow) { purchased29Local = purchased29Flow }
+    LaunchedEffect(purchased30Flow) { purchased30Local = purchased30Flow }
 
     var selectedBubble by remember { mutableIntStateOf(if (equippedBubbleLocal > 0) equippedBubbleLocal else 0) }
     LaunchedEffect(equippedBubbleLocal) {
         if (selectedBubble == 0) selectedBubble = equippedBubbleLocal
     }
 
-    // Prices - ID 10 has no price (level unlock only)
+    // Prices - ID 10 has no price (level unlock only), IDs 11-30 are generated bubbles
     val prices = mapOf(
         1 to 500, 2 to 1500, 3 to 500, 4 to 500, 5 to 4000,
         6 to 40, 7 to 60, 8 to 80,
-        10 to 0 // Level 7 unlock - no price
+        10 to 0, // Level 7 unlock - no price
+        11 to 600, 12 to 700, 13 to 50, 14 to 800, 15 to 60,
+        16 to 900, 17 to 70, 18 to 1000, 19 to 75, 20 to 1200,
+        21 to 80, 22 to 850, 23 to 90, 24 to 65, 25 to 70,
+        26 to 95, 27 to 750, 28 to 1100, 29 to 85, 30 to 100
     )
 
     var showConfirm by remember { mutableStateOf(false) }
@@ -151,6 +217,26 @@ fun BubbleCustomizationScreen() {
         7 -> purchased7Local
         8 -> purchased8Local
         10 -> purchased10Local
+        11 -> purchased11Local
+        12 -> purchased12Local
+        13 -> purchased13Local
+        14 -> purchased14Local
+        15 -> purchased15Local
+        16 -> purchased16Local
+        17 -> purchased17Local
+        18 -> purchased18Local
+        19 -> purchased19Local
+        20 -> purchased20Local
+        21 -> purchased21Local
+        22 -> purchased22Local
+        23 -> purchased23Local
+        24 -> purchased24Local
+        25 -> purchased25Local
+        26 -> purchased26Local
+        27 -> purchased27Local
+        28 -> purchased28Local
+        29 -> purchased29Local
+        30 -> purchased30Local
         else -> false
     }
 
@@ -165,6 +251,26 @@ fun BubbleCustomizationScreen() {
             7 -> purchased7Local = value
             8 -> purchased8Local = value
             10 -> purchased10Local = value
+            11 -> purchased11Local = value
+            12 -> purchased12Local = value
+            13 -> purchased13Local = value
+            14 -> purchased14Local = value
+            15 -> purchased15Local = value
+            16 -> purchased16Local = value
+            17 -> purchased17Local = value
+            18 -> purchased18Local = value
+            19 -> purchased19Local = value
+            20 -> purchased20Local = value
+            21 -> purchased21Local = value
+            22 -> purchased22Local = value
+            23 -> purchased23Local = value
+            24 -> purchased24Local = value
+            25 -> purchased25Local = value
+            26 -> purchased26Local = value
+            27 -> purchased27Local = value
+            28 -> purchased28Local = value
+            29 -> purchased29Local = value
+            30 -> purchased30Local = value
         }
     }
 
@@ -450,16 +556,16 @@ fun BubbleCustomizationScreen() {
         }
     }
 
-    // Purchase Dialog (for buyable items)
+    // Purchase Dialog (for buyable items 1-30, excluding 10 which is level-locked)
     if (showConfirm && pendingBuyId != 0 && pendingBuyId != 10) {
         BubblePurchaseDialog(
             bubbleId = pendingBuyId,
             bubbleName = getBubbleName(pendingBuyId),
             price = prices[pendingBuyId] ?: 0,
-            isLuxPriced = pendingBuyId >= 6,
+            isLuxPriced = isLuxPricedBubble(pendingBuyId),
             onConfirm = {
                 val id = pendingBuyId
-                val isLuxPriced = id >= 6
+                val isLuxPriced = isLuxPricedBubble(id)
                 val price = prices[id] ?: 0
 
                 setPurchased(id, true)
@@ -521,6 +627,26 @@ private fun getBubbleName(id: Int): String = when (id) {
     7 -> "Anime Bubble"
     8 -> "Space Bubble"
     10 -> "🌟 Level 7 Exclusive"
+    11 -> "✨ Fire"
+    12 -> "✨ Ice"
+    13 -> "✨ Electric"
+    14 -> "✨ Nature"
+    15 -> "✨ Galaxy"
+    16 -> "✨ Lava"
+    17 -> "✨ Crystal"
+    18 -> "✨ Sunset"
+    19 -> "✨ Midnight"
+    20 -> "✨ Cherry Blossom"
+    21 -> "✨ Toxic"
+    22 -> "✨ Water"
+    23 -> "✨ Diamond"
+    24 -> "✨ Neon"
+    25 -> "✨ Aurora"
+    26 -> "✨ Rainbow Swirl"
+    27 -> "✨ Smoke"
+    28 -> "✨ Candy"
+    29 -> "✨ Metal"
+    30 -> "✨ Plasma"
     else -> "Default Bubble"
 }
 
@@ -547,7 +673,47 @@ private fun getBubbleRarity(id: Int): BubbleRarity = when (id) {
     7 -> BubbleRarity.EPIC
     8 -> BubbleRarity.EPIC
     10 -> BubbleRarity.EXCLUSIVE
+    11, 12 -> BubbleRarity.RARE
+    13, 14, 15 -> BubbleRarity.EPIC
+    16, 17, 18 -> BubbleRarity.LEGENDARY
+    19, 20, 21, 22, 23 -> BubbleRarity.EPIC
+    24, 25, 26 -> BubbleRarity.LEGENDARY
+    27, 28, 29, 30 -> BubbleRarity.MYTHIC
     else -> BubbleRarity. COMMON
+}
+
+private fun isGeneratedBubble(id: Int): Boolean = id in 11..30
+
+@Composable
+private fun GeneratedBubblePreview(id: Int, modifier: Modifier = Modifier) {
+    when (id) {
+        11 -> FireBubble(modifier = modifier)
+        12 -> IceBubble(modifier = modifier)
+        13 -> ElectricBubble(modifier = modifier)
+        14 -> NatureBubble(modifier = modifier)
+        15 -> GalaxyBubble(modifier = modifier)
+        16 -> LavaBubble(modifier = modifier)
+        17 -> CrystalBubble(modifier = modifier)
+        18 -> SunsetBubble(modifier = modifier)
+        19 -> MidnightBubble(modifier = modifier)
+        20 -> CherryBlossomBubble(modifier = modifier)
+        21 -> ToxicBubble(modifier = modifier)
+        22 -> WaterBubble(modifier = modifier)
+        23 -> DiamondBubble(modifier = modifier)
+        24 -> NeonBubble(modifier = modifier)
+        25 -> AuroraBubble(modifier = modifier)
+        26 -> RainbowSwirlBubble(modifier = modifier)
+        27 -> SmokeBubble(modifier = modifier)
+        28 -> CandyBubble(modifier = modifier)
+        29 -> MetalBubble(modifier = modifier)
+        30 -> PlasmaBubble(modifier = modifier)
+    }
+}
+
+private fun isLuxPricedBubble(id: Int): Boolean = when(id) {
+    6, 7, 8 -> true  // Original lux items
+    13, 15, 17, 19, 21, 23, 24, 26, 29, 30 -> true  // New generated lux items
+    else -> false
 }
 
 private enum class BubbleRarity(val color: Color, val label: String) {
@@ -555,6 +721,7 @@ private enum class BubbleRarity(val color: Color, val label: String) {
     RARE(Color(0xFF2196F3), "Rare"),
     EPIC(Color(0xFF9C27B0), "Epic"),
     LEGENDARY(Color(0xFFFFD700), "Legendary"),
+    MYTHIC(Color(0xFFFF1744), "Mythic"),
     EXCLUSIVE(Color(0xFF00E676), "Exclusive")
 }
 
@@ -696,18 +863,32 @@ private fun BubblePreviewPanel(
             BubbleParticlesBackground(rarityColor = rarity.color)
 
             val drawable = getBubbleDrawable(selectedBubble)
-            Image(
-                painter = painterResource(id = drawable),
-                contentDescription = "bubble_preview",
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(20.dp)
-                    .graphicsLayer {
-                        translationY = floatOffset
-                    }
-                    .alpha(if (isLevelLocked) 0.5f else 1f),
-                contentScale = ContentScale. Fit
-            )
+            val isGenerated = isGeneratedBubble(selectedBubble)
+            
+            if (isGenerated) {
+                // Show generated bubble
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(20.dp)
+                        .alpha(if (isLevelLocked) 0.5f else 1f)
+                ) {
+                    GeneratedBubblePreview(id = selectedBubble, modifier = Modifier.fillMaxSize())
+                }
+            } else {
+                Image(
+                    painter = painterResource(id = drawable),
+                    contentDescription = "bubble_preview",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(20.dp)
+                        .graphicsLayer {
+                            translationY = floatOffset
+                        }
+                        .alpha(if (isLevelLocked) 0.5f else 1f),
+                    contentScale = ContentScale. Fit
+                )
+            }
 
             // Level lock overlay
             if (isLevelLocked) {
@@ -750,6 +931,25 @@ private fun BubblePreviewPanel(
                         text = "✓ EQUIPPED",
                         fontSize = 10.sp,
                         fontWeight = FontWeight. Bold,
+                        color = Color.White
+                    )
+                }
+            }
+            
+            // Animated badge for generated bubbles
+            if (isGenerated && !isLevelLocked) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(8.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color(0xFFFF6D00))
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = "✨ ANIMATED",
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
                 }
@@ -1114,8 +1314,8 @@ private fun BubbleSelectorPanel(
     isLevel7BubbleUnlocked: Boolean = false,
     currentLevel: Int = 1
 ) {
-    // Include ID 10 (Level 7 exclusive)
-    val bubbleList = listOf(1, 2, 3, 4, 5, 6, 7, 8, 10)
+    // Include IDs 1-30 (excluding 9, includes Level 7 exclusive ID 10)
+    val bubbleList = (1..30).filter { it != 9 }.toList()
     val scroll = rememberScrollState()
 
     Column(
@@ -1258,15 +1458,29 @@ private fun BubbleSelectorItem(
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Image(
-                    painter = painterResource(id = drawableId),
-                    contentDescription = "bubble_$id",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(4.dp)
-                        .alpha(if (isLevelLocked) 0.4f else 1f),
-                    contentScale = ContentScale. Fit
-                )
+                val isGenerated = isGeneratedBubble(id)
+                
+                if (isGenerated) {
+                    // Show generated bubble preview
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(4.dp)
+                            .alpha(if (isLevelLocked) 0.4f else 1f)
+                    ) {
+                        GeneratedBubblePreview(id = id, modifier = Modifier.fillMaxSize())
+                    }
+                } else {
+                    Image(
+                        painter = painterResource(id = drawableId),
+                        contentDescription = "bubble_$id",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(4.dp)
+                            .alpha(if (isLevelLocked) 0.4f else 1f),
+                        contentScale = ContentScale. Fit
+                    )
+                }
 
                 // Lock overlay
                 if (isLevelLocked) {
