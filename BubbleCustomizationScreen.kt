@@ -1,2778 +1,1754 @@
 package com.appsdevs.popit
 
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.EaseInOutSine
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.drawscope.*
-import kotlin.math.*
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-// ==================== GENERATED BUBBLES (CODE-BASED) ====================
-// All bubbles use uniform sizing: radius = min(size.width, size.height) / 2.5f
-// All bubbles are centered at: size.width / 2, size.height / 2
+// ==================== BUBBLE CUSTOMIZATION SCREEN ====================
 
-// ==================== BUBBLE 11: FIRE BUBBLE ====================
 @Composable
-fun FireBubble(modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "fire")
-    val flameFlicker by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(300, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "flicker"
-    )
-    val rotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(8000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "rotation"
-    )
-    val particleRise by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "rise"
-    )
+fun BubbleCustomizationScreen() {
+    val ctx = LocalContext.current
+    val ds = remember { DataStoreManager(ctx) }
+    val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val centerX = size.width / 2
-        val centerY = size.height / 2
-        val radius = min(size.width, size.height) / 2.5f
+    val equippedBubbleFlow by ds.equippedBubbleFlow().collectAsState(initial = 0)
 
-        // Base dark core
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color(0xFF4A0000),
-                    Color(0xFF8B0000)
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius
-            ),
-            radius = radius,
-            center = Offset(centerX, centerY)
-        )
+    // Collect purchase states for all bubbles dynamically
+    val bubbleIds = listOf(1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30)
+    val purchasedStates = remember { mutableMapOf<Int, Boolean>() }
 
-        // Flame layers with flicker
-        for (layer in 0..3) {
-            val layerRadius = radius * (0.9f - layer * 0.15f)
-            val flickerOffset = flameFlicker * 0.05f * layerRadius
-            val layerColor = when (layer) {
-                0 -> Color(0xFFFF4500)
-                1 -> Color(0xFFFF6347)
-                2 -> Color(0xFFFF8C00)
-                else -> Color(0xFFFFA500)
-            }
-            
-            drawCircle(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        layerColor.copy(alpha = 0.8f),
-                        layerColor.copy(alpha = 0.3f),
-                        Color.Transparent
-                    ),
-                    center = Offset(centerX, centerY - flickerOffset),
-                    radius = layerRadius
-                ),
-                radius = layerRadius,
-                center = Offset(centerX, centerY - flickerOffset)
-            )
-        }
-
-        // Rising flame particles
-        for (i in 0 until 20) {
-            val angle = (i * 18f + rotation) * PI.toFloat() / 180f
-            val particleProgress = (particleRise + i * 0.05f) % 1f
-            val particleX = centerX + cos(angle) * radius * 0.3f
-            val particleY = centerY - particleProgress * radius * 1.2f
-            val particleAlpha = (1f - particleProgress) * 0.8f
-            
-            drawCircle(
-                color = Color(0xFFFFA500).copy(alpha = particleAlpha),
-                radius = radius * 0.05f * (1f - particleProgress),
-                center = Offset(particleX, particleY)
-            )
-        }
-
-        // Heat distortion effect (outer glow)
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color.Transparent,
-                    Color(0xFFFF0000).copy(alpha = 0.2f * flameFlicker),
-                    Color.Transparent
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius * 1.3f
-            ),
-            radius = radius * 1.3f,
-            center = Offset(centerX, centerY)
-        )
-    }
-}
-
-// ==================== BUBBLE 12: ICE BUBBLE ====================
-@Composable
-fun IceBubble(modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "ice")
-    val sparkle by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "sparkle"
-    )
-    val crystalRotate by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(15000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "crystalRotate"
-    )
-    val frostPulse by infiniteTransition.animateFloat(
-        initialValue = 0.8f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "frostPulse"
-    )
-
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val centerX = size.width / 2
-        val centerY = size.height / 2
-        val radius = min(size.width, size.height) / 2.5f
-
-        // Base ice gradient
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color(0xFFE0FFFF),
-                    Color(0xFF87CEEB),
-                    Color(0xFF4682B4)
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius
-            ),
-            radius = radius,
-            center = Offset(centerX, centerY)
-        )
-
-        // Frost layer
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color.White.copy(alpha = 0.6f * frostPulse),
-                    Color(0xFFB0E0E6).copy(alpha = 0.3f * frostPulse),
-                    Color.Transparent
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius * 0.9f
-            ),
-            radius = radius * 0.9f,
-            center = Offset(centerX, centerY)
-        )
-
-        // Ice crystals pattern
-        for (i in 0 until 6) {
-            val angle = (i * 60f + crystalRotate) * PI.toFloat() / 180f
-            val crystalLength = radius * 0.8f
-            
-            // Main crystal ray
-            drawLine(
-                color = Color.White.copy(alpha = 0.8f),
-                start = Offset(centerX, centerY),
-                end = Offset(
-                    centerX + cos(angle) * crystalLength,
-                    centerY + sin(angle) * crystalLength
-                ),
-                strokeWidth = 2f
-            )
-            
-            // Side branches
-            for (branch in 1..2) {
-                val branchStart = 0.3f * branch
-                val branchAngle = if (branch % 2 == 0) 30f else -30f
-                val branchAngleRad = (angle + branchAngle * PI.toFloat() / 180f)
-                val startX = centerX + cos(angle) * crystalLength * branchStart
-                val startY = centerY + sin(angle) * crystalLength * branchStart
-                
-                drawLine(
-                    color = Color.White.copy(alpha = 0.6f),
-                    start = Offset(startX, startY),
-                    end = Offset(
-                        startX + cos(branchAngleRad) * radius * 0.2f,
-                        startY + sin(branchAngleRad) * radius * 0.2f
-                    ),
-                    strokeWidth = 1.5f
-                )
-            }
-        }
-
-        // Sparkles
-        for (i in 0 until 12) {
-            val angle = (i * 30f) * PI.toFloat() / 180f
-            val sparkleDistance = radius * (0.6f + (i % 3) * 0.1f)
-            val sparkleAlpha = if (i % 3 == 0) sparkle else 1f - sparkle
-            
-            drawCircle(
-                color = Color.White.copy(alpha = sparkleAlpha * 0.9f),
-                radius = radius * 0.04f,
-                center = Offset(
-                    centerX + cos(angle) * sparkleDistance,
-                    centerY + sin(angle) * sparkleDistance
-                )
-            )
+    bubbleIds.forEach { id ->
+        val isPurchased by ds.isBubblePurchasedFlow(id).collectAsState(initial = false)
+        LaunchedEffect(isPurchased) {
+            purchasedStates[id] = isPurchased
         }
     }
-}
 
-// ==================== BUBBLE 13: ELECTRIC BUBBLE ====================
-@Composable
-fun ElectricBubble(modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "electric")
-    val pulse by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(400, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulse"
-    )
-    val boltPhase by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(800, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "boltPhase"
-    )
-    val rotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(6000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "rotation"
-    )
-
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val centerX = size.width / 2
-        val centerY = size.height / 2
-        val radius = min(size.width, size.height) / 2.5f
-
-        // Base electric core
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color(0xFF1E90FF),
-                    Color(0xFF0047AB),
-                    Color(0xFF000080)
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius
-            ),
-            radius = radius,
-            center = Offset(centerX, centerY)
-        )
-
-        // Energy pulse rings
-        for (ring in 0..2) {
-            val ringRadius = radius * (0.7f - ring * 0.2f) * (1f + pulse * 0.1f)
-            drawCircle(
-                color = Color(0xFF00FFFF).copy(alpha = 0.6f * (1f - pulse)),
-                radius = ringRadius,
-                center = Offset(centerX, centerY),
-                style = Stroke(width = 2f)
-            )
-        }
-
-        // Electric arcs/bolts
-        for (i in 0 until 8) {
-            if ((i + (boltPhase * 8).toInt()) % 3 == 0) {
-                val angle = (i * 45f + rotation) * PI.toFloat() / 180f
-                val boltLength = radius * 0.9f
-                val segments = 5
-                
-                val path = Path()
-                path.moveTo(centerX, centerY)
-                
-                var currentX = centerX
-                var currentY = centerY
-                
-                for (seg in 0 until segments) {
-                    val progress = (seg + 1f) / segments
-                    val targetX = centerX + cos(angle) * boltLength * progress
-                    val targetY = centerY + sin(angle) * boltLength * progress
-                    
-                    // Add zigzag
-                    val zigzag = (if (seg % 2 == 0) 1f else -1f) * radius * 0.1f
-                    val perpAngle = angle + PI.toFloat() / 2f
-                    val zigzagX = (currentX + targetX) / 2 + cos(perpAngle) * zigzag
-                    val zigzagY = (currentY + targetY) / 2 + sin(perpAngle) * zigzag
-                    
-                    path.lineTo(zigzagX, zigzagY)
-                    path.lineTo(targetX, targetY)
-                    
-                    currentX = targetX
-                    currentY = targetY
-                }
-                
-                drawPath(
-                    path = path,
-                    color = Color(0xFFFFFF00).copy(alpha = 0.9f),
-                    style = Stroke(width = 3f)
-                )
-                
-                // Bolt glow
-                drawPath(
-                    path = path,
-                    color = Color(0xFF00FFFF).copy(alpha = 0.4f),
-                    style = Stroke(width = 6f)
-                )
-            }
-        }
-
-        // Sparks
-        for (i in 0 until 15) {
-            val sparkAngle = (i * 24f + rotation * 2f + boltPhase * 360f) * PI.toFloat() / 180f
-            val sparkDistance = radius * (0.8f + sin(boltPhase * PI.toFloat() * 2f + i) * 0.2f)
-            
-            drawCircle(
-                color = Color(0xFFFFFF00).copy(alpha = 0.8f),
-                radius = radius * 0.03f,
-                center = Offset(
-                    centerX + cos(sparkAngle) * sparkDistance,
-                    centerY + sin(sparkAngle) * sparkDistance
-                )
-            )
-        }
-
-        // Core glow
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color.White.copy(alpha = 0.8f * pulse),
-                    Color(0xFF00FFFF).copy(alpha = 0.4f),
-                    Color.Transparent
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius * 0.4f
-            ),
-            radius = radius * 0.4f,
-            center = Offset(centerX, centerY)
-        )
+    // Level 7 exclusive bubble (ID 10)
+    val isLevel7BubbleUnlocked by ds.isLevel7BubbleUnlockedFlow().collectAsState(initial = false)
+    LaunchedEffect(isLevel7BubbleUnlocked) {
+        if (isLevel7BubbleUnlocked) purchasedStates[10] = true
     }
-}
 
-// ==================== BUBBLE 14: NATURE BUBBLE ====================
-@Composable
-fun NatureBubble(modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "nature")
-    val leafFall by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(4000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "leafFall"
-    )
-    val vineGrow by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "vineGrow"
-    )
-    val particleFloat by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 2 * PI.toFloat(),
-        animationSpec = infiniteRepeatable(
-            animation = tween(5000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "particleFloat"
-    )
+    // Get current player level
+    val totalPops by ds.totalPopsFlow().collectAsState(initial = 0)
+    val currentLevel = ds.calculateLevelFromPops(totalPops)
 
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val centerX = size.width / 2
-        val centerY = size.height / 2
-        val radius = min(size.width, size.height) / 2.5f
+    var equippedBubbleLocal by remember { mutableIntStateOf(equippedBubbleFlow) }
+    LaunchedEffect(equippedBubbleFlow) { equippedBubbleLocal = equippedBubbleFlow }
 
-        // Base nature gradient
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color(0xFF90EE90),
-                    Color(0xFF228B22),
-                    Color(0xFF006400)
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius
-            ),
-            radius = radius,
-            center = Offset(centerX, centerY)
-        )
-
-        // Growth rings
-        for (ring in 0..3) {
-            drawCircle(
-                color = Color(0xFF00FF00).copy(alpha = 0.2f * vineGrow),
-                radius = radius * (0.3f + ring * 0.2f) * vineGrow,
-                center = Offset(centerX, centerY),
-                style = Stroke(width = 2f)
-            )
-        }
-
-        // Vine patterns
-        for (vine in 0 until 4) {
-            val vineAngle = (vine * 90f) * PI.toFloat() / 180f
-            val path = Path()
-            path.moveTo(centerX, centerY)
-            
-            for (seg in 0..8) {
-                val progress = seg / 8f * vineGrow
-                val distance = radius * progress
-                val wave = sin(progress * PI.toFloat() * 3f) * radius * 0.15f
-                val perpAngle = vineAngle + PI.toFloat() / 2f
-                
-                val x = centerX + cos(vineAngle) * distance + cos(perpAngle) * wave
-                val y = centerY + sin(vineAngle) * distance + sin(perpAngle) * wave
-                
-                if (seg == 0) {
-                    path.moveTo(x, y)
-                } else {
-                    path.lineTo(x, y)
-                }
-            }
-            
-            drawPath(
-                path = path,
-                color = Color(0xFF228B22).copy(alpha = 0.7f),
-                style = Stroke(width = 3f)
-            )
-        }
-
-        // Falling leaves
-        for (i in 0 until 12) {
-            val leafAngle = (i * 30f) * PI.toFloat() / 180f
-            val fallProgress = (leafFall + i * 0.08f) % 1f
-            val leafX = centerX + cos(leafAngle + sin(fallProgress * PI.toFloat()) * 0.5f) * radius * 0.7f
-            val leafY = centerY - radius * 0.8f + fallProgress * radius * 1.8f
-            val leafAlpha = sin(fallProgress * PI.toFloat()) * 0.8f
-            
-            // Leaf shape (simple oval)
-            drawOval(
-                color = Color(0xFF32CD32).copy(alpha = leafAlpha),
-                topLeft = Offset(leafX - radius * 0.06f, leafY - radius * 0.08f),
-                size = androidx.compose.ui.geometry.Size(radius * 0.12f, radius * 0.16f)
-            )
-        }
-
-        // Green particle effects
-        for (i in 0 until 20) {
-            val angle = (i * 18f) * PI.toFloat() / 180f
-            val floatDistance = radius * (0.5f + sin(particleFloat + i) * 0.3f)
-            val particleAlpha = 0.3f + sin(particleFloat + i) * 0.3f
-            
-            drawCircle(
-                color = Color(0xFF7FFF00).copy(alpha = particleAlpha),
-                radius = radius * 0.03f,
-                center = Offset(
-                    centerX + cos(angle) * floatDistance,
-                    centerY + sin(angle) * floatDistance
-                )
-            )
-        }
+    var selectedBubble by remember { mutableIntStateOf(if (equippedBubbleLocal > 0) equippedBubbleLocal else 0) }
+    LaunchedEffect(equippedBubbleLocal) {
+        if (selectedBubble == 0) selectedBubble = equippedBubbleLocal
     }
-}
 
-// ==================== BUBBLE 15: GALAXY BUBBLE ====================
-@Composable
-fun GalaxyBubble(modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "galaxy")
-    val spiralRotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(20000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "spiralRotation"
-    )
-    val starTwinkle by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1200, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "starTwinkle"
-    )
-    val nebulaFlow by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(8000, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "nebulaFlow"
+    // Prices - ID 10 has no price (level unlock only)
+    val prices = mapOf(
+        1 to 500, 2 to 1500, 3 to 500, 4 to 500, 5 to 4000,
+        6 to 40, 7 to 60, 8 to 80,
+        10 to 0, // Level 7 unlock - no price
+        11 to 100, 12 to 100, 13 to 100, 14 to 80, 15 to 200,
+        16 to 100, 17 to 200, 18 to 80, 19 to 100, 20 to 80,
+        21 to 100, 22 to 80, 23 to 200, 24 to 100, 25 to 200,
+        26 to 200, 27 to 80, 28 to 80, 29 to 100, 30 to 200
     )
 
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val centerX = size.width / 2
-        val centerY = size.height / 2
-        val radius = min(size.width, size.height) / 2.5f
+    var showConfirm by remember { mutableStateOf(false) }
+    var pendingBuyId by remember { mutableIntStateOf(0) }
 
-        // Base space background
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color(0xFF1A0033),
-                    Color(0xFF0D001A),
-                    Color(0xFF000000)
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius
-            ),
-            radius = radius,
-            center = Offset(centerX, centerY)
-        )
+    var showLevelLockDialog by remember { mutableStateOf(false) }
+    var levelLockTargetId by remember { mutableIntStateOf(0) }
 
-        // Nebula clouds
-        for (nebula in 0..2) {
-            val nebulaAngle = (nebula * 120f + nebulaFlow * 60f) * PI.toFloat() / 180f
-            val nebulaDistance = radius * 0.4f
-            val nebulaSize = radius * 0.5f
-            val nebulaColors = listOf(
-                Color(0xFFFF00FF),
-                Color(0xFF00FFFF),
-                Color(0xFFFF1493)
-            )
-            
-            drawCircle(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        nebulaColors[nebula].copy(alpha = 0.3f * nebulaFlow),
-                        Color.Transparent
-                    ),
-                    center = Offset(
-                        centerX + cos(nebulaAngle) * nebulaDistance,
-                        centerY + sin(nebulaAngle) * nebulaDistance
-                    ),
-                    radius = nebulaSize
-                ),
-                radius = nebulaSize,
-                center = Offset(
-                    centerX + cos(nebulaAngle) * nebulaDistance,
-                    centerY + sin(nebulaAngle) * nebulaDistance
-                )
-            )
-        }
+    fun isPurchased(id: Int): Boolean = purchasedStates[id] ?: false
+    fun setPurchased(id: Int, value: Boolean) {
+        purchasedStates[id] = value
+    }
 
-        // Spiral galaxy arms
-        for (arm in 0 until 3) {
-            val armAngleOffset = arm * 120f
-            
-            for (point in 0 until 30) {
-                val spiralProgress = point / 30f
-                val spiralAngle = (armAngleOffset + spiralRotation + spiralProgress * 360f) * PI.toFloat() / 180f
-                val spiralDistance = radius * spiralProgress * 0.9f
-                val starSize = radius * 0.02f * (1f - spiralProgress * 0.5f)
-                val starAlpha = 0.6f + (1f - spiralProgress) * 0.4f
-                
-                drawCircle(
-                    color = Color.White.copy(alpha = starAlpha),
-                    radius = starSize,
-                    center = Offset(
-                        centerX + cos(spiralAngle) * spiralDistance,
-                        centerY + sin(spiralAngle) * spiralDistance
+    fun isLevelLockedItem(id: Int): Boolean = id == 10 && !isLevel7BubbleUnlocked
+
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp)
+    ) {
+        val isWide = maxWidth > 760.dp
+
+        Column(modifier = Modifier.fillMaxWidth()) {
+            // Header
+            Text(
+                text = "🫧 BUBBLE SHOP",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = Color. White,
+                style = TextStyle(
+                    shadow = Shadow(
+                        color = Color.Black. copy(alpha = 0.5f),
+                        offset = Offset(2f, 2f),
+                        blurRadius = 4f
                     )
                 )
-            }
-        }
-
-        // Twinkling stars
-        for (i in 0 until 50) {
-            val angle = (i * 7.2f) * PI.toFloat() / 180f
-            val distance = radius * ((i % 10) / 10f) * 0.95f
-            val twinklePhase = (starTwinkle + i * 0.1f) % 1f
-            val starAlpha = 0.4f + sin(twinklePhase * PI.toFloat() * 2f) * 0.6f
-            val starColor = when (i % 5) {
-                0 -> Color.White
-                1 -> Color(0xFFADD8E6)
-                2 -> Color(0xFFFFE4C4)
-                3 -> Color(0xFFFFB6C1)
-                else -> Color(0xFFF0F8FF)
-            }
-            
-            drawCircle(
-                color = starColor.copy(alpha = starAlpha),
-                radius = radius * 0.015f,
-                center = Offset(
-                    centerX + cos(angle) * distance,
-                    centerY + sin(angle) * distance
-                )
             )
-        }
 
-        // Central bright core
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color.White.copy(alpha = 0.9f),
-                    Color(0xFFFFD700).copy(alpha = 0.6f),
-                    Color.Transparent
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius * 0.3f
-            ),
-            radius = radius * 0.3f,
-            center = Offset(centerX, centerY)
-        )
-    }
-}
+            Spacer(modifier = Modifier.height(12.dp))
 
-// ==================== BUBBLE 16: LAVA BUBBLE ====================
-@Composable
-fun LavaBubble(modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "lava")
-    val lavaFlow by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "lavaFlow"
-    )
-    val bubbleRise by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2500, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "bubbleRise"
-    )
-    val heatPulse by infiniteTransition.animateFloat(
-        initialValue = 0.8f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(800, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "heatPulse"
-    )
+            if (isWide) {
+                Row(
+                    modifier = Modifier. fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Card(
+                        modifier = Modifier
+                            .weight(0.55f)
+                            .height(580.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFF1A1A2E).copy(alpha = 0.9f)
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                    ) {
+                        BubblePreviewPanel(
+                            selectedBubble = selectedBubble,
+                            selectedName = getBubbleName(selectedBubble),
+                            isPurchased = isPurchased(selectedBubble),
+                            isEquipped = equippedBubbleLocal == selectedBubble,
+                            price = prices[selectedBubble] ?: 0,
+                            isLevelLocked = isLevelLockedItem(selectedBubble),
+                            requiredLevel = if (selectedBubble == 10) 7 else 0,
+                            currentLevel = currentLevel,
+                            onBuyOrEquip = {
+                                if (selectedBubble == 10) {
+                                    if (isLevel7BubbleUnlocked) {
+                                        handleBuyOrEquip(
+                                            selectedBubble = selectedBubble,
+                                            isPurchased = isPurchased(selectedBubble),
+                                            isEquipped = equippedBubbleLocal == selectedBubble,
+                                            onEquip = { id ->
+                                                equippedBubbleLocal = id
+                                                coroutineScope.launch {
+                                                    withContext(Dispatchers.IO) { ds.equipBubble(id) }
+                                                    snackbarHostState.showSnackbar("✅ Equipped!")
+                                                }
+                                            },
+                                            onUnequip = {
+                                                equippedBubbleLocal = 0
+                                                coroutineScope.launch {
+                                                    withContext(Dispatchers.IO) { ds.equipBubble(0) }
+                                                    snackbarHostState.showSnackbar("Unequipped")
+                                                }
+                                            },
+                                            onBuy = { },
+                                            onNoSelection = { }
+                                        )
+                                    } else {
+                                        levelLockTargetId = 10
+                                        showLevelLockDialog = true
+                                    }
+                                } else {
+                                    handleBuyOrEquip(
+                                        selectedBubble = selectedBubble,
+                                        isPurchased = isPurchased(selectedBubble),
+                                        isEquipped = equippedBubbleLocal == selectedBubble,
+                                        onEquip = { id ->
+                                            equippedBubbleLocal = id
+                                            coroutineScope.launch {
+                                                withContext(Dispatchers.IO) { ds.equipBubble(id) }
+                                                snackbarHostState.showSnackbar("✅ Equipped!")
+                                            }
+                                        },
+                                        onUnequip = {
+                                            equippedBubbleLocal = 0
+                                            coroutineScope.launch {
+                                                withContext(Dispatchers.IO) { ds.equipBubble(0) }
+                                                snackbarHostState.showSnackbar("Unequipped")
+                                            }
+                                        },
+                                        onBuy = { id ->
+                                            pendingBuyId = id
+                                            showConfirm = true
+                                        },
+                                        onNoSelection = {
+                                            coroutineScope.launch {
+                                                snackbarHostState. showSnackbar("Select a bubble first")
+                                            }
+                                        }
+                                    )
+                                }
+                            },
+                            onReset = {
+                                coroutineScope. launch {
+                                    selectedBubble = 0
+                                    equippedBubbleLocal = 0
+                                    withContext(Dispatchers.IO) { ds.resetBubbleToDefault() }
+                                    snackbarHostState.showSnackbar("🔄 Reset to default")
+                                }
+                            }
+                        )
+                    }
 
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val centerX = size.width / 2
-        val centerY = size.height / 2
-        val radius = min(size.width, size.height) / 2.5f
-
-        // Base lava core
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color(0xFFFF4500),
-                    Color(0xFFFF6347),
-                    Color(0xFF8B0000),
-                    Color(0xFF4A0000)
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius
-            ),
-            radius = radius,
-            center = Offset(centerX, centerY)
-        )
-
-        // Flowing lava streams
-        for (stream in 0 until 8) {
-            val streamAngle = (stream * 45f) * PI.toFloat() / 180f
-            val flowPhase = (lavaFlow + stream * 0.125f) % 1f
-            
-            for (segment in 0 until 10) {
-                val segmentProgress = segment / 10f
-                val distance = radius * segmentProgress * 0.9f
-                val wave = sin((flowPhase + segmentProgress) * PI.toFloat() * 4f) * radius * 0.1f
-                val perpAngle = streamAngle + PI.toFloat() / 2f
-                
-                val x = centerX + cos(streamAngle) * distance + cos(perpAngle) * wave
-                val y = centerY + sin(streamAngle) * distance + sin(perpAngle) * wave
-                
-                val segmentAlpha = (1f - segmentProgress) * 0.6f
-                drawCircle(
-                    color = Color(0xFFFFA500).copy(alpha = segmentAlpha),
-                    radius = radius * 0.08f * (1f - segmentProgress * 0.5f),
-                    center = Offset(x, y)
-                )
-            }
-        }
-
-        // Rising lava bubbles
-        for (i in 0 until 15) {
-            val bubbleAngle = (i * 24f) * PI.toFloat() / 180f
-            val riseProgress = (bubbleRise + i * 0.067f) % 1f
-            val bubbleDistance = radius * 0.7f * (1f - riseProgress * 0.5f)
-            val bubbleX = centerX + cos(bubbleAngle) * bubbleDistance
-            val bubbleY = centerY + sin(bubbleAngle) * bubbleDistance - riseProgress * radius * 0.5f
-            val bubbleAlpha = (1f - riseProgress) * 0.8f
-            val bubbleSize = radius * 0.1f * (1f - riseProgress * 0.7f)
-            
-            drawCircle(
-                color = Color(0xFFFF8C00).copy(alpha = bubbleAlpha),
-                radius = bubbleSize,
-                center = Offset(bubbleX, bubbleY)
-            )
-            
-            // Bubble highlight
-            drawCircle(
-                color = Color(0xFFFFD700).copy(alpha = bubbleAlpha * 0.5f),
-                radius = bubbleSize * 0.4f,
-                center = Offset(bubbleX - bubbleSize * 0.3f, bubbleY - bubbleSize * 0.3f)
-            )
-        }
-
-        // Glowing rocks/crust
-        for (rock in 0 until 12) {
-            val rockAngle = (rock * 30f + lavaFlow * 30f) * PI.toFloat() / 180f
-            val rockDistance = radius * 0.85f
-            
-            drawCircle(
-                color = Color(0xFF8B0000).copy(alpha = 0.9f),
-                radius = radius * 0.08f,
-                center = Offset(
-                    centerX + cos(rockAngle) * rockDistance,
-                    centerY + sin(rockAngle) * rockDistance
-                )
-            )
-            
-            // Rock glow
-            drawCircle(
-                color = Color(0xFFFF4500).copy(alpha = 0.5f * heatPulse),
-                radius = radius * 0.1f,
-                center = Offset(
-                    centerX + cos(rockAngle) * rockDistance,
-                    centerY + sin(rockAngle) * rockDistance
-                )
-            )
-        }
-
-        // Central heat glow
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color(0xFFFFFF00).copy(alpha = 0.8f * heatPulse),
-                    Color(0xFFFF4500).copy(alpha = 0.4f),
-                    Color.Transparent
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius * 0.5f
-            ),
-            radius = radius * 0.5f,
-            center = Offset(centerX, centerY)
-        )
-    }
-}
-
-// ==================== BUBBLE 17: CRYSTAL BUBBLE ====================
-@Composable
-fun CrystalBubble(modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "crystal")
-    val prismRotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(12000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "prismRotation"
-    )
-    val sparkle by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "sparkle"
-    )
-    val colorShift by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(8000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "colorShift"
-    )
-
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val centerX = size.width / 2
-        val centerY = size.height / 2
-        val radius = min(size.width, size.height) / 2.5f
-
-        // Base crystal body
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color(0xFFE8F5F5),
-                    Color(0xFFB8E6E6),
-                    Color(0xFF8BCDCD),
-                    Color(0xFF5FB4B4)
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius
-            ),
-            radius = radius,
-            center = Offset(centerX, centerY)
-        )
-
-        // Crystal facets
-        for (facet in 0 until 12) {
-            val facetAngle = (facet * 30f + prismRotation) * PI.toFloat() / 180f
-            val facetSize = radius * 0.8f
-            
-            val path = Path()
-            path.moveTo(centerX, centerY)
-            
-            val angle1 = facetAngle - 0.15f
-            val angle2 = facetAngle + 0.15f
-            
-            path.lineTo(
-                centerX + cos(angle1) * facetSize,
-                centerY + sin(angle1) * facetSize
-            )
-            path.lineTo(
-                centerX + cos(angle2) * facetSize,
-                centerY + sin(angle2) * facetSize
-            )
-            path.close()
-            
-            // Rainbow refraction color
-            val hue = (colorShift + facet * 30f) % 360f
-            val facetColor = Color.hsv(hue, 0.6f, 1f, 0.3f)
-            
-            drawPath(
-                path = path,
-                color = facetColor
-            )
-            
-            // Facet edge highlight
-            drawLine(
-                color = Color.White.copy(alpha = 0.7f),
-                start = Offset(centerX, centerY),
-                end = Offset(
-                    centerX + cos(facetAngle) * facetSize,
-                    centerY + sin(facetAngle) * facetSize
-                ),
-                strokeWidth = 1.5f
-            )
-        }
-
-        // Prismatic sparkles
-        for (i in 0 until 20) {
-            val angle = (i * 18f + prismRotation * 2f) * PI.toFloat() / 180f
-            val sparkleDistance = radius * (0.4f + (i % 4) * 0.15f)
-            val hue = (colorShift + i * 18f) % 360f
-            val sparkleColor = Color.hsv(hue, 0.8f, 1f)
-            val sparkleAlpha = if (i % 2 == 0) sparkle else 1f - sparkle
-            
-            drawCircle(
-                color = sparkleColor.copy(alpha = sparkleAlpha * 0.8f),
-                radius = radius * 0.05f,
-                center = Offset(
-                    centerX + cos(angle) * sparkleDistance,
-                    centerY + sin(angle) * sparkleDistance
-                )
-            )
-            
-            // Sparkle rays
-            for (ray in 0 until 4) {
-                val rayAngle = angle + (ray * 90f) * PI.toFloat() / 180f
-                drawLine(
-                    color = sparkleColor.copy(alpha = sparkleAlpha * 0.5f),
-                    start = Offset(
-                        centerX + cos(angle) * sparkleDistance,
-                        centerY + sin(angle) * sparkleDistance
-                    ),
-                    end = Offset(
-                        centerX + cos(angle) * sparkleDistance + cos(rayAngle) * radius * 0.08f,
-                        centerY + sin(angle) * sparkleDistance + sin(rayAngle) * radius * 0.08f
-                    ),
-                    strokeWidth = 1f
-                )
-            }
-        }
-
-        // Central bright reflection
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color.White.copy(alpha = 0.9f),
-                    Color.White.copy(alpha = 0.4f),
-                    Color.Transparent
-                ),
-                center = Offset(centerX - radius * 0.2f, centerY - radius * 0.2f),
-                radius = radius * 0.3f
-            ),
-            radius = radius * 0.3f,
-            center = Offset(centerX - radius * 0.2f, centerY - radius * 0.2f)
-        )
-    }
-}
-
-// ==================== BUBBLE 18: SUNSET BUBBLE ====================
-@Composable
-fun SunsetBubble(modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "sunset")
-    val sunDescend by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(10000, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "sunDescend"
-    )
-    val cloudMove by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(15000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "cloudMove"
-    )
-    val colorPulse by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(5000, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "colorPulse"
-    )
-
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val centerX = size.width / 2
-        val centerY = size.height / 2
-        val radius = min(size.width, size.height) / 2.5f
-
-        // Dynamic sunset gradient
-        val gradientColors = listOf(
-            Color(0xFFFFA07A).copy(alpha = 0.8f + colorPulse * 0.2f),
-            Color(0xFFFF6347).copy(alpha = 0.9f),
-            Color(0xFFFF4500).copy(alpha = 0.8f),
-            Color(0xFFFF1493).copy(alpha = 0.7f),
-            Color(0xFF9370DB).copy(alpha = 0.6f)
-        )
-        
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = gradientColors,
-                center = Offset(centerX, centerY + radius * 0.3f * sunDescend),
-                radius = radius
-            ),
-            radius = radius,
-            center = Offset(centerX, centerY)
-        )
-
-        // Sun
-        val sunY = centerY - radius * 0.3f + sunDescend * radius * 0.6f
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color(0xFFFFFACD),
-                    Color(0xFFFFD700),
-                    Color(0xFFFFA500).copy(alpha = 0.8f),
-                    Color.Transparent
-                ),
-                center = Offset(centerX, sunY),
-                radius = radius * 0.35f
-            ),
-            radius = radius * 0.35f,
-            center = Offset(centerX, sunY)
-        )
-
-        // Sun rays
-        for (ray in 0 until 12) {
-            val rayAngle = (ray * 30f) * PI.toFloat() / 180f
-            val rayLength = radius * (0.5f + colorPulse * 0.1f)
-            
-            drawLine(
-                color = Color(0xFFFFD700).copy(alpha = 0.6f * (1f - sunDescend * 0.5f)),
-                start = Offset(
-                    centerX + cos(rayAngle) * radius * 0.35f,
-                    sunY + sin(rayAngle) * radius * 0.35f
-                ),
-                end = Offset(
-                    centerX + cos(rayAngle) * rayLength,
-                    sunY + sin(rayAngle) * rayLength
-                ),
-                strokeWidth = 2f
-            )
-        }
-
-        // Floating clouds
-        for (cloud in 0 until 5) {
-            val cloudProgress = (cloudMove + cloud * 0.2f) % 1f
-            val cloudX = -radius * 0.3f + cloudProgress * (size.width + radius * 0.6f)
-            val cloudY = centerY + (cloud - 2) * radius * 0.3f
-            val cloudAlpha = 0.3f + sin(cloudProgress * PI.toFloat()) * 0.2f
-            
-            // Cloud shape (3 overlapping circles)
-            for (puff in 0..2) {
-                val puffX = cloudX + (puff - 1) * radius * 0.15f
-                drawCircle(
-                    color = Color.White.copy(alpha = cloudAlpha),
-                    radius = radius * 0.12f,
-                    center = Offset(puffX, cloudY)
-                )
-            }
-        }
-
-        // Horizon glow
-        drawRect(
-            brush = Brush.verticalGradient(
-                colors = listOf(
-                    Color.Transparent,
-                    Color(0xFFFF4500).copy(alpha = 0.3f * (1f - sunDescend)),
-                    Color(0xFFFF6347).copy(alpha = 0.5f * (1f - sunDescend))
-                ),
-                startY = centerY + radius * 0.5f,
-                endY = centerY + radius
-            ),
-            topLeft = Offset(centerX - radius, centerY + radius * 0.5f),
-            size = androidx.compose.ui.geometry.Size(radius * 2, radius * 0.5f)
-        )
-    }
-}
-
-// ==================== BUBBLE 19: MIDNIGHT BUBBLE ====================
-@Composable
-fun MidnightBubble(modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "midnight")
-    val starTwinkle by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "starTwinkle"
-    )
-    val moonGlow by infiniteTransition.animateFloat(
-        initialValue = 0.8f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "moonGlow"
-    )
-    val cloudDrift by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(20000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "cloudDrift"
-    )
-    val auroraWave by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 2 * PI.toFloat(),
-        animationSpec = infiniteRepeatable(
-            animation = tween(8000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "auroraWave"
-    )
-
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val centerX = size.width / 2
-        val centerY = size.height / 2
-        val radius = min(size.width, size.height) / 2.5f
-
-        // Deep night gradient
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color(0xFF0A0A2E),
-                    Color(0xFF050514),
-                    Color(0xFF000000)
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius
-            ),
-            radius = radius,
-            center = Offset(centerX, centerY)
-        )
-
-        // Subtle aurora effect
-        for (wave in 0 until 3) {
-            val path = Path()
-            val waveY = centerY - radius * 0.6f + wave * radius * 0.15f
-            path.moveTo(centerX - radius, waveY)
-            
-            for (i in 0..20) {
-                val x = centerX - radius + (i / 20f) * radius * 2
-                val y = waveY + sin(auroraWave + i * 0.3f + wave) * radius * 0.1f
-                path.lineTo(x, y)
-            }
-            
-            val auroraColor = when (wave) {
-                0 -> Color(0xFF00FF88)
-                1 -> Color(0xFF0088FF)
-                else -> Color(0xFFAA00FF)
-            }
-            
-            drawPath(
-                path = path,
-                color = auroraColor.copy(alpha = 0.2f),
-                style = Stroke(width = radius * 0.08f)
-            )
-        }
-
-        // Moon
-        val moonX = centerX + radius * 0.4f
-        val moonY = centerY - radius * 0.4f
-        val moonRadius = radius * 0.3f
-        
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color(0xFFFFFAF0).copy(alpha = moonGlow),
-                    Color(0xFFF0E68C).copy(alpha = 0.9f * moonGlow),
-                    Color(0xFFDEB887).copy(alpha = 0.7f * moonGlow)
-                ),
-                center = Offset(moonX, moonY),
-                radius = moonRadius
-            ),
-            radius = moonRadius,
-            center = Offset(moonX, moonY)
-        )
-
-        // Moon craters
-        for (crater in 0 until 5) {
-            val craterAngle = (crater * 72f) * PI.toFloat() / 180f
-            val craterDist = moonRadius * 0.4f
-            drawCircle(
-                color = Color(0xFFDEB887).copy(alpha = 0.4f * moonGlow),
-                radius = moonRadius * 0.2f,
-                center = Offset(
-                    moonX + cos(craterAngle) * craterDist,
-                    moonY + sin(craterAngle) * craterDist
-                )
-            )
-        }
-
-        // Moon glow
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color.Transparent,
-                    Color(0xFFFFFAF0).copy(alpha = 0.15f * moonGlow),
-                    Color.Transparent
-                ),
-                center = Offset(moonX, moonY),
-                radius = moonRadius * 2f
-            ),
-            radius = moonRadius * 2f,
-            center = Offset(moonX, moonY)
-        )
-
-        // Twinkling stars
-        for (i in 0 until 40) {
-            val angle = (i * 9f) * PI.toFloat() / 180f
-            val distance = radius * ((i % 10) / 10f) * 0.95f
-            val twinklePhase = (starTwinkle + i * 0.1f) % 1f
-            val starAlpha = 0.3f + sin(twinklePhase * PI.toFloat() * 2f) * 0.7f
-            val starSize = radius * (0.015f + (i % 3) * 0.01f)
-            
-            drawCircle(
-                color = Color.White.copy(alpha = starAlpha),
-                radius = starSize,
-                center = Offset(
-                    centerX + cos(angle) * distance,
-                    centerY + sin(angle) * distance
-                )
-            )
-        }
-
-        // Drifting night clouds
-        for (cloud in 0 until 3) {
-            val cloudProgress = (cloudDrift + cloud * 0.33f) % 1f
-            val cloudX = -radius * 0.4f + cloudProgress * (size.width + radius * 0.8f)
-            val cloudY = centerY + radius * 0.6f + cloud * radius * 0.15f
-            
-            for (puff in 0..2) {
-                drawCircle(
-                    color = Color(0xFF1A1A3E).copy(alpha = 0.6f),
-                    radius = radius * 0.15f,
-                    center = Offset(cloudX + (puff - 1) * radius * 0.2f, cloudY)
-                )
-            }
-        }
-    }
-}
-
-// ==================== BUBBLE 20: CHERRY BLOSSOM BUBBLE ====================
-@Composable
-fun CherryBlossomBubble(modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "cherryBlossom")
-    val petalFall by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(5000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "petalFall"
-    )
-    val windSway by infiniteTransition.animateFloat(
-        initialValue = -1f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "windSway"
-    )
-    val bloomPulse by infiniteTransition.animateFloat(
-        initialValue = 0.9f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "bloomPulse"
-    )
-
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val centerX = size.width / 2
-        val centerY = size.height / 2
-        val radius = min(size.width, size.height) / 2.5f
-
-        // Soft pink gradient
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color(0xFFFFE4E1),
-                    Color(0xFFFFB6C1),
-                    Color(0xFFFF69B4).copy(alpha = 0.7f)
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius
-            ),
-            radius = radius,
-            center = Offset(centerX, centerY)
-        )
-
-        // Cherry branch
-        val branchPath = Path()
-        branchPath.moveTo(centerX - radius * 0.8f, centerY + radius * 0.6f)
-        branchPath.cubicTo(
-            centerX - radius * 0.4f, centerY + radius * 0.3f,
-            centerX - radius * 0.2f, centerY - radius * 0.2f,
-            centerX + radius * 0.3f, centerY - radius * 0.5f
-        )
-        
-        drawPath(
-            path = branchPath,
-            color = Color(0xFF8B4513).copy(alpha = 0.8f),
-            style = Stroke(width = radius * 0.06f)
-        )
-
-        // Cherry blossoms on branch
-        for (blossom in 0 until 8) {
-            val t = blossom / 8f
-            val blossomX = centerX - radius * 0.8f + (centerX + radius * 0.3f - (centerX - radius * 0.8f)) * t + 
-                          sin(t * PI.toFloat() * 2) * radius * 0.2f
-            val blossomY = centerY + radius * 0.6f - radius * 1.1f * t + cos(t * PI.toFloat()) * radius * 0.2f
-            
-            // Draw flower petals
-            for (petal in 0 until 5) {
-                val petalAngle = (petal * 72f) * PI.toFloat() / 180f
-                val petalSize = radius * 0.08f * bloomPulse
-                
-                drawCircle(
-                    color = Color(0xFFFFB6C1).copy(alpha = 0.9f),
-                    radius = petalSize,
-                    center = Offset(
-                        blossomX + cos(petalAngle) * petalSize * 0.7f,
-                        blossomY + sin(petalAngle) * petalSize * 0.7f
-                    )
-                )
-            }
-            
-            // Flower center
-            drawCircle(
-                color = Color(0xFFFFD700).copy(alpha = 0.8f),
-                radius = radius * 0.03f,
-                center = Offset(blossomX, blossomY)
-            )
-        }
-
-        // Falling petals
-        for (i in 0 until 20) {
-            val fallProgress = (petalFall + i * 0.05f) % 1f
-            val startAngle = (i * 18f) * PI.toFloat() / 180f
-            val swayAmount = sin(fallProgress * PI.toFloat() * 3f + i) * windSway * radius * 0.3f
-            
-            val petalX = centerX + cos(startAngle) * radius * 0.5f + swayAmount
-            val petalY = centerY - radius + fallProgress * radius * 2f
-            val petalRotation = fallProgress * 360f + i * 20f
-            val petalAlpha = sin(fallProgress * PI.toFloat()) * 0.8f
-            
-            // Petal shape (oval)
-            drawOval(
-                color = Color(0xFFFFB6C1).copy(alpha = petalAlpha),
-                topLeft = Offset(
-                    petalX - radius * 0.04f,
-                    petalY - radius * 0.06f
-                ),
-                size = androidx.compose.ui.geometry.Size(radius * 0.08f, radius * 0.12f)
-            )
-        }
-    }
-}
-
-// ==================== BUBBLE 21: TOXIC BUBBLE ====================
-@Composable
-fun ToxicBubble(modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "toxic")
-    val radiationPulse by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "radiationPulse"
-    )
-    val bubbleRise by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "bubbleRise"
-    )
-    val neonFlicker by infiniteTransition.animateFloat(
-        initialValue = 0.8f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(200, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "neonFlicker"
-    )
-
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val centerX = size.width / 2
-        val centerY = size.height / 2
-        val radius = min(size.width, size.height) / 2.5f
-
-        // Toxic base gradient
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color(0xFF00FF00).copy(alpha = 0.8f),
-                    Color(0xFF32CD32),
-                    Color(0xFF228B22),
-                    Color(0xFF006400)
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius
-            ),
-            radius = radius,
-            center = Offset(centerX, centerY)
-        )
-
-        // Radiation symbol rings
-        for (ring in 0 until 3) {
-            val ringRadius = radius * (0.3f + ring * 0.2f) * (1f + radiationPulse * 0.05f)
-            drawCircle(
-                color = Color(0xFF00FF00).copy(alpha = (0.6f - ring * 0.15f) * neonFlicker),
-                radius = ringRadius,
-                center = Offset(centerX, centerY),
-                style = Stroke(width = 3f)
-            )
-        }
-
-        // Radiation symbol blades
-        for (blade in 0 until 3) {
-            val bladeAngle = (blade * 120f) * PI.toFloat() / 180f
-            val path = Path()
-            
-            val innerRadius = radius * 0.15f
-            val outerRadius = radius * 0.65f
-            val bladeWidth = 0.4f
-            
-            path.moveTo(centerX, centerY)
-            path.lineTo(
-                centerX + cos(bladeAngle - bladeWidth) * outerRadius,
-                centerY + sin(bladeAngle - bladeWidth) * outerRadius
-            )
-            path.lineTo(
-                centerX + cos(bladeAngle) * (outerRadius * 1.1f),
-                centerY + sin(bladeAngle) * (outerRadius * 1.1f)
-            )
-            path.lineTo(
-                centerX + cos(bladeAngle + bladeWidth) * outerRadius,
-                centerY + sin(bladeAngle + bladeWidth) * outerRadius
-            )
-            path.close()
-            
-            drawPath(
-                path = path,
-                color = Color(0xFF000000).copy(alpha = 0.7f)
-            )
-            
-            // Blade glow
-            drawPath(
-                path = path,
-                color = Color(0xFF00FF00).copy(alpha = 0.3f * neonFlicker),
-                style = Stroke(width = 2f)
-            )
-        }
-
-        // Rising toxic bubbles
-        for (i in 0 until 12) {
-            val bubbleAngle = (i * 30f) * PI.toFloat() / 180f
-            val riseProgress = (bubbleRise + i * 0.083f) % 1f
-            val bubbleX = centerX + cos(bubbleAngle) * radius * 0.6f * (1f - riseProgress * 0.3f)
-            val bubbleY = centerY + radius * 0.8f - riseProgress * radius * 1.6f
-            val bubbleSize = radius * 0.08f * (1f - riseProgress * 0.5f)
-            val bubbleAlpha = (1f - riseProgress) * 0.7f
-            
-            drawCircle(
-                color = Color(0xFF7FFF00).copy(alpha = bubbleAlpha * neonFlicker),
-                radius = bubbleSize,
-                center = Offset(bubbleX, bubbleY)
-            )
-            
-            // Bubble highlight
-            drawCircle(
-                color = Color.White.copy(alpha = bubbleAlpha * 0.4f),
-                radius = bubbleSize * 0.3f,
-                center = Offset(bubbleX - bubbleSize * 0.3f, bubbleY - bubbleSize * 0.3f)
-            )
-        }
-
-        // Radioactive glow
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color.Transparent,
-                    Color(0xFF00FF00).copy(alpha = 0.3f * radiationPulse * neonFlicker),
-                    Color.Transparent
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius * 1.3f
-            ),
-            radius = radius * 1.3f,
-            center = Offset(centerX, centerY)
-        )
-
-        // Central dark core
-        drawCircle(
-            color = Color(0xFF001100).copy(alpha = 0.7f),
-            radius = radius * 0.15f,
-            center = Offset(centerX, centerY)
-        )
-    }
-}
-
-// ==================== BUBBLE 22: WATER BUBBLE ====================
-@Composable
-fun WaterBubble(modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "water")
-    val ripplePhase by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "ripplePhase"
-    )
-    val dropFall by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "dropFall"
-    )
-    val waveFlow by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 2 * PI.toFloat(),
-        animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "waveFlow"
-    )
-
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val centerX = size.width / 2
-        val centerY = size.height / 2
-        val radius = min(size.width, size.height) / 2.5f
-
-        // Base water gradient
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color(0xFFE0F7FA),
-                    Color(0xFF80DEEA),
-                    Color(0xFF00BCD4),
-                    Color(0xFF0097A7)
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius
-            ),
-            radius = radius,
-            center = Offset(centerX, centerY)
-        )
-
-        // Concentric ripples
-        for (ripple in 0 until 5) {
-            val rippleProgress = (ripplePhase + ripple * 0.2f) % 1f
-            val rippleRadius = radius * rippleProgress
-            val rippleAlpha = (1f - rippleProgress) * 0.6f
-            
-            drawCircle(
-                color = Color.White.copy(alpha = rippleAlpha),
-                radius = rippleRadius,
-                center = Offset(centerX, centerY),
-                style = Stroke(width = 3f)
-            )
-        }
-
-        // Water waves
-        for (wave in 0 until 3) {
-            val path = Path()
-            val waveY = centerY + (wave - 1) * radius * 0.4f
-            path.moveTo(centerX - radius, waveY)
-            
-            for (i in 0..20) {
-                val x = centerX - radius + (i / 20f) * radius * 2
-                val y = waveY + sin(waveFlow + i * 0.5f + wave) * radius * 0.08f
-                path.lineTo(x, y)
-            }
-            
-            drawPath(
-                path = path,
-                color = Color.White.copy(alpha = 0.3f),
-                style = Stroke(width = 2f)
-            )
-        }
-
-        // Falling water drops
-        for (i in 0 until 8) {
-            val dropAngle = (i * 45f) * PI.toFloat() / 180f
-            val dropProgress = (dropFall + i * 0.125f) % 1f
-            
-            if (dropProgress < 0.7f) {
-                val dropX = centerX + cos(dropAngle) * radius * 0.3f
-                val dropY = centerY - radius * 0.9f + dropProgress * radius * 1.3f
-                val dropAlpha = 1f - dropProgress / 0.7f
-                
-                // Drop shape
-                drawCircle(
-                    color = Color(0xFF4DD0E1).copy(alpha = dropAlpha),
-                    radius = radius * 0.06f,
-                    center = Offset(dropX, dropY)
-                )
-                
-                // Drop highlight
-                drawCircle(
-                    color = Color.White.copy(alpha = dropAlpha * 0.7f),
-                    radius = radius * 0.02f,
-                    center = Offset(dropX - radius * 0.02f, dropY - radius * 0.02f)
-                )
+                    Card(
+                        modifier = Modifier
+                            .weight(0.45f)
+                            .height(580.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFF1A1A2E).copy(alpha = 0.9f)
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                    ) {
+                        BubbleSelectorPanel(
+                            equippedBubble = equippedBubbleLocal,
+                            selectedBubble = selectedBubble,
+                            onSelect = { selectedBubble = it },
+                            onQuickBuy = { id ->
+                                if (id == 10) {
+                                    levelLockTargetId = 10
+                                    showLevelLockDialog = true
+                                } else {
+                                    pendingBuyId = id
+                                    showConfirm = true
+                                }
+                            },
+                            isPurchasedProvider = { isPurchased(it) },
+                            prices = prices,
+                            isLevel7BubbleUnlocked = isLevel7BubbleUnlocked,
+                            currentLevel = currentLevel
+                        )
+                    }
+                }
             } else {
-                // Splash ripple
-                val splashProgress = (dropProgress - 0.7f) / 0.3f
-                val splashX = centerX + cos(dropAngle) * radius * 0.3f
-                val splashY = centerY + radius * 0.4f
-                val splashRadius = radius * 0.2f * splashProgress
-                val splashAlpha = (1f - splashProgress) * 0.5f
-                
-                drawCircle(
-                    color = Color.White.copy(alpha = splashAlpha),
-                    radius = splashRadius,
-                    center = Offset(splashX, splashY),
-                    style = Stroke(width = 2f)
-                )
-            }
-        }
-
-        // Light reflection
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color.White.copy(alpha = 0.6f),
-                    Color.White.copy(alpha = 0.2f),
-                    Color.Transparent
-                ),
-                center = Offset(centerX - radius * 0.3f, centerY - radius * 0.3f),
-                radius = radius * 0.4f
-            ),
-            radius = radius * 0.4f,
-            center = Offset(centerX - radius * 0.3f, centerY - radius * 0.3f)
-        )
-    }
-}
-
-// ==================== BUBBLE 23: DIAMOND BUBBLE ====================
-@Composable
-fun DiamondBubble(modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "diamond")
-    val rotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(10000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "rotation"
-    )
-    val sparkle by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(800, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "sparkle"
-    )
-    val refraction by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(6000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "refraction"
-    )
-
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val centerX = size.width / 2
-        val centerY = size.height / 2
-        val radius = min(size.width, size.height) / 2.5f
-
-        // Base diamond gradient
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color.White,
-                    Color(0xFFE0F7FF),
-                    Color(0xFFB0E0E6),
-                    Color(0xFF87CEEB)
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius
-            ),
-            radius = radius,
-            center = Offset(centerX, centerY)
-        )
-
-        // Diamond facets
-        val facetCount = 8
-        for (facet in 0 until facetCount) {
-            val facetAngle = (facet * (360f / facetCount) + rotation) * PI.toFloat() / 180f
-            
-            val path = Path()
-            path.moveTo(centerX, centerY)
-            
-            val angle1 = facetAngle - (PI.toFloat() / facetCount)
-            val angle2 = facetAngle + (PI.toFloat() / facetCount)
-            
-            path.lineTo(
-                centerX + cos(angle1) * radius,
-                centerY + sin(angle1) * radius
-            )
-            path.lineTo(
-                centerX + cos(angle2) * radius,
-                centerY + sin(angle2) * radius
-            )
-            path.close()
-            
-            // Rainbow refraction
-            val hue = (refraction + facet * (360f / facetCount)) % 360f
-            val facetColor = Color.hsv(hue, 0.3f, 1f, 0.4f)
-            
-            drawPath(
-                path = path,
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        Color.Transparent,
-                        facetColor,
-                        facetColor.copy(alpha = 0.2f)
+                // Phone layout
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        . height(420.dp),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFF1A1A2E).copy(alpha = 0.9f)
                     ),
-                    center = Offset(centerX, centerY),
-                    radius = radius
-                )
-            )
-            
-            // Facet edge
-            drawLine(
-                color = Color.White.copy(alpha = 0.8f),
-                start = Offset(centerX, centerY),
-                end = Offset(
-                    centerX + cos(facetAngle) * radius,
-                    centerY + sin(facetAngle) * radius
-                ),
-                strokeWidth = 2f
-            )
-        }
-
-        // Rotating light beams
-        for (beam in 0 until 4) {
-            val beamAngle = (beam * 90f + rotation * 2f) * PI.toFloat() / 180f
-            
-            drawLine(
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        Color.White.copy(alpha = 0.8f * sparkle),
-                        Color.White.copy(alpha = 0.3f * sparkle),
-                        Color.Transparent
-                    ),
-                    start = Offset(centerX, centerY),
-                    end = Offset(
-                        centerX + cos(beamAngle) * radius * 1.2f,
-                        centerY + sin(beamAngle) * radius * 1.2f
+                    elevation = CardDefaults. cardElevation(defaultElevation = 8.dp)
+                ) {
+                    BubblePreviewPanel(
+                        selectedBubble = selectedBubble,
+                        selectedName = getBubbleName(selectedBubble),
+                        isPurchased = isPurchased(selectedBubble),
+                        isEquipped = equippedBubbleLocal == selectedBubble,
+                        price = prices[selectedBubble] ?: 0,
+                        isLevelLocked = isLevelLockedItem(selectedBubble),
+                        requiredLevel = if (selectedBubble == 10) 7 else 0,
+                        currentLevel = currentLevel,
+                        onBuyOrEquip = {
+                            if (selectedBubble == 10) {
+                                if (isLevel7BubbleUnlocked) {
+                                    handleBuyOrEquip(
+                                        selectedBubble = selectedBubble,
+                                        isPurchased = isPurchased(selectedBubble),
+                                        isEquipped = equippedBubbleLocal == selectedBubble,
+                                        onEquip = { id ->
+                                            equippedBubbleLocal = id
+                                            coroutineScope.launch {
+                                                withContext(Dispatchers. IO) { ds.equipBubble(id) }
+                                                snackbarHostState.showSnackbar("✅ Equipped!")
+                                            }
+                                        },
+                                        onUnequip = {
+                                            equippedBubbleLocal = 0
+                                            coroutineScope.launch {
+                                                withContext(Dispatchers. IO) { ds.equipBubble(0) }
+                                                snackbarHostState.showSnackbar("Unequipped")
+                                            }
+                                        },
+                                        onBuy = { },
+                                        onNoSelection = { }
+                                    )
+                                } else {
+                                    levelLockTargetId = 10
+                                    showLevelLockDialog = true
+                                }
+                            } else {
+                                handleBuyOrEquip(
+                                    selectedBubble = selectedBubble,
+                                    isPurchased = isPurchased(selectedBubble),
+                                    isEquipped = equippedBubbleLocal == selectedBubble,
+                                    onEquip = { id ->
+                                        equippedBubbleLocal = id
+                                        coroutineScope.launch {
+                                            withContext(Dispatchers.IO) { ds.equipBubble(id) }
+                                            snackbarHostState. showSnackbar("✅ Equipped!")
+                                        }
+                                    },
+                                    onUnequip = {
+                                        equippedBubbleLocal = 0
+                                        coroutineScope.launch {
+                                            withContext(Dispatchers.IO) { ds.equipBubble(0) }
+                                            snackbarHostState. showSnackbar("Unequipped")
+                                        }
+                                    },
+                                    onBuy = { id ->
+                                        pendingBuyId = id
+                                        showConfirm = true
+                                    },
+                                    onNoSelection = {
+                                        coroutineScope. launch {
+                                            snackbarHostState.showSnackbar("Select a bubble first")
+                                        }
+                                    }
+                                )
+                            }
+                        },
+                        onReset = {
+                            coroutineScope. launch {
+                                selectedBubble = 0
+                                equippedBubbleLocal = 0
+                                withContext(Dispatchers. IO) { ds.resetBubbleToDefault() }
+                                snackbarHostState.showSnackbar("🔄 Reset to default")
+                            }
+                        }
                     )
-                ),
-                start = Offset(centerX, centerY),
-                end = Offset(
-                    centerX + cos(beamAngle) * radius * 1.2f,
-                    centerY + sin(beamAngle) * radius * 1.2f
-                ),
-                strokeWidth = radius * 0.15f
-            )
-        }
+                }
 
-        // Sparkle points
-        for (i in 0 until 12) {
-            val sparkleAngle = (i * 30f + rotation * 1.5f) * PI.toFloat() / 180f
-            val sparkleDistance = radius * (0.6f + (i % 3) * 0.15f)
-            val sparkleAlpha = if (i % 2 == 0) sparkle else 1f - sparkle
-            
-            // Star sparkle
-            for (ray in 0 until 4) {
-                val rayAngle = sparkleAngle + (ray * 90f) * PI.toFloat() / 180f
-                val rayLength = radius * 0.12f
-                
-                drawLine(
-                    color = Color.White.copy(alpha = sparkleAlpha),
-                    start = Offset(
-                        centerX + cos(sparkleAngle) * sparkleDistance,
-                        centerY + sin(sparkleAngle) * sparkleDistance
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(340.dp),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFF1A1A2E).copy(alpha = 0.9f)
                     ),
-                    end = Offset(
-                        centerX + cos(sparkleAngle) * sparkleDistance + cos(rayAngle) * rayLength,
-                        centerY + sin(sparkleAngle) * sparkleDistance + sin(rayAngle) * rayLength
-                    ),
-                    strokeWidth = 2f
-                )
-            }
-        }
-
-        // Central brilliant shine
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color.White.copy(alpha = 0.9f),
-                    Color.White.copy(alpha = 0.5f),
-                    Color.Transparent
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius * 0.35f
-            ),
-            radius = radius * 0.35f,
-            center = Offset(centerX, centerY)
-        )
-    }
-}
-
-
-// ==================== BUBBLE 24: NEON BUBBLE ====================
-@Composable
-fun NeonBubble(modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "neon")
-    val pulse by infiniteTransition.animateFloat(
-        initialValue = 0.6f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(600, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulse"
-    )
-    val colorCycle by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(5000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "colorCycle"
-    )
-    val lineFlow by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "lineFlow"
-    )
-
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val centerX = size.width / 2
-        val centerY = size.height / 2
-        val radius = min(size.width, size.height) / 2.5f
-
-        // Dark cyberpunk background
-        drawCircle(
-            color = Color(0xFF0A0A0A),
-            radius = radius,
-            center = Offset(centerX, centerY)
-        )
-
-        // Neon circles
-        for (circle in 0 until 5) {
-            val circleRadius = radius * (0.3f + circle * 0.15f)
-            val hue = (colorCycle + circle * 72f) % 360f
-            val neonColor = Color.hsv(hue, 1f, 1f)
-            
-            // Glow
-            drawCircle(
-                color = neonColor.copy(alpha = 0.3f * pulse),
-                radius = circleRadius + 5f,
-                center = Offset(centerX, centerY),
-                style = Stroke(width = 10f)
-            )
-            
-            // Main line
-            drawCircle(
-                color = neonColor.copy(alpha = 0.9f * pulse),
-                radius = circleRadius,
-                center = Offset(centerX, centerY),
-                style = Stroke(width = 3f)
-            )
-        }
-
-        // Flowing neon lines
-        for (line in 0 until 8) {
-            val lineAngle = (line * 45f) * PI.toFloat() / 180f
-            val flowProgress = (lineFlow + line * 0.125f) % 1f
-            val lineLength = radius * flowProgress
-            
-            val hue = (colorCycle + line * 45f) % 360f
-            val lineColor = Color.hsv(hue, 1f, 1f)
-            
-            // Glow trail
-            drawLine(
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        lineColor.copy(alpha = 0.6f * pulse),
-                        lineColor.copy(alpha = 0.2f * pulse),
-                        Color.Transparent
-                    ),
-                    start = Offset(centerX, centerY),
-                    end = Offset(
-                        centerX + cos(lineAngle) * lineLength,
-                        centerY + sin(lineAngle) * lineLength
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                ) {
+                    BubbleSelectorPanel(
+                        equippedBubble = equippedBubbleLocal,
+                        selectedBubble = selectedBubble,
+                        onSelect = { selectedBubble = it },
+                        onQuickBuy = { id ->
+                            if (id == 10) {
+                                levelLockTargetId = 10
+                                showLevelLockDialog = true
+                            } else {
+                                pendingBuyId = id
+                                showConfirm = true
+                            }
+                        },
+                        isPurchasedProvider = { isPurchased(it) },
+                        prices = prices,
+                        isLevel7BubbleUnlocked = isLevel7BubbleUnlocked,
+                        currentLevel = currentLevel
                     )
-                ),
-                start = Offset(centerX, centerY),
-                end = Offset(
-                    centerX + cos(lineAngle) * lineLength,
-                    centerY + sin(lineAngle) * lineLength
-                ),
-                strokeWidth = 8f
-            )
-            
-            // Bright line
-            drawLine(
-                color = lineColor.copy(alpha = 0.9f * pulse),
-                start = Offset(centerX, centerY),
-                end = Offset(
-                    centerX + cos(lineAngle) * lineLength,
-                    centerY + sin(lineAngle) * lineLength
-                ),
-                strokeWidth = 2f
-            )
-        }
-
-        // Central neon glow
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color.White.copy(alpha = 0.9f * pulse),
-                    Color.hsv(colorCycle % 360f, 1f, 1f, 0.6f * pulse),
-                    Color.Transparent
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius * 0.3f
-            ),
-            radius = radius * 0.3f,
-            center = Offset(centerX, centerY)
-        )
-    }
-}
-
-// ==================== BUBBLE 25: AURORA BUBBLE ====================
-@Composable
-fun AuroraBubble(modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "aurora")
-    val wave1 by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 2 * PI.toFloat(),
-        animationSpec = infiniteRepeatable(
-            animation = tween(8000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "wave1"
-    )
-    val wave2 by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 2 * PI.toFloat(),
-        animationSpec = infiniteRepeatable(
-            animation = tween(6000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "wave2"
-    )
-    val colorShift by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(10000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "colorShift"
-    )
-
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val centerX = size.width / 2
-        val centerY = size.height / 2
-        val radius = min(size.width, size.height) / 2.5f
-
-        // Dark polar night background
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color(0xFF0D1F2D),
-                    Color(0xFF0A1828),
-                    Color(0xFF000814)
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius
-            ),
-            radius = radius,
-            center = Offset(centerX, centerY)
-        )
-
-        // Aurora waves
-        for (layer in 0 until 4) {
-            val path = Path()
-            val layerY = centerY - radius * 0.4f + layer * radius * 0.2f
-            
-            path.moveTo(centerX - radius, layerY)
-            
-            for (i in 0..30) {
-                val progress = i / 30f
-                val x = centerX - radius + progress * radius * 2
-                val waveOffset1 = sin(wave1 + progress * PI.toFloat() * 3f + layer) * radius * 0.15f
-                val waveOffset2 = sin(wave2 + progress * PI.toFloat() * 2f - layer) * radius * 0.1f
-                val y = layerY + waveOffset1 + waveOffset2
-                
-                path.lineTo(x, y)
-            }
-            
-            // Aurora colors
-            val hue = (colorShift + layer * 40f) % 360f
-            val auroraColors = when (layer % 3) {
-                0 -> listOf(Color(0xFF00FF88), Color(0xFF00FFAA))
-                1 -> listOf(Color(0xFF0088FF), Color(0xFF00AAFF))
-                else -> listOf(Color(0xFFAA00FF), Color(0xFFCC00FF))
-            }
-            
-            // Aurora glow
-            drawPath(
-                path = path,
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        auroraColors[0].copy(alpha = 0.6f),
-                        auroraColors[1].copy(alpha = 0.3f)
-                    )
-                ),
-                style = Stroke(width = radius * 0.2f)
-            )
-            
-            // Bright edge
-            drawPath(
-                path = path,
-                color = auroraColors[0].copy(alpha = 0.9f),
-                style = Stroke(width = 2f)
-            )
-        }
-
-        // Flowing particles
-        for (i in 0 until 30) {
-            val angle = (i * 12f) * PI.toFloat() / 180f
-            val distance = radius * (0.5f + (i % 5) * 0.1f)
-            val flowPhase = (wave1 + i * 0.2f) % (2 * PI.toFloat())
-            val particleAlpha = 0.3f + sin(flowPhase) * 0.5f
-            
-            val hue = (colorShift + i * 12f) % 360f
-            val particleColor = Color.hsv(hue, 0.8f, 1f)
-            
-            drawCircle(
-                color = particleColor.copy(alpha = particleAlpha),
-                radius = radius * 0.02f,
-                center = Offset(
-                    centerX + cos(angle) * distance,
-                    centerY + sin(angle) * distance + sin(flowPhase) * radius * 0.2f
-                )
-            )
-        }
-    }
-}
-
-// ==================== BUBBLE 26: RAINBOW SWIRL BUBBLE ====================
-@Composable
-fun RainbowSwirlBubble(modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "rainbowSwirl")
-    val rotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(8000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "rotation"
-    )
-    val colorFlow by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(6000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "colorFlow"
-    )
-    val pulse by infiniteTransition.animateFloat(
-        initialValue = 0.9f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulse"
-    )
-
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val centerX = size.width / 2
-        val centerY = size.height / 2
-        val radius = min(size.width, size.height) / 2.5f
-
-        // White base
-        drawCircle(
-            color = Color.White,
-            radius = radius,
-            center = Offset(centerX, centerY)
-        )
-
-        // Rainbow spiral arms
-        for (arm in 0 until 6) {
-            val armAngleOffset = arm * 60f + rotation
-            val path = Path()
-            
-            var firstPoint = true
-            for (point in 0..40) {
-                val spiralProgress = point / 40f
-                val spiralAngle = (armAngleOffset + spiralProgress * 360f) * PI.toFloat() / 180f
-                val spiralDistance = radius * spiralProgress * pulse
-                
-                val x = centerX + cos(spiralAngle) * spiralDistance
-                val y = centerY + sin(spiralAngle) * spiralDistance
-                
-                if (firstPoint) {
-                    path.moveTo(x, y)
-                    firstPoint = false
-                } else {
-                    path.lineTo(x, y)
                 }
             }
-            
-            // Rainbow color for each arm
-            val hue = (colorFlow + arm * 60f) % 360f
-            val armColor = Color.hsv(hue, 0.9f, 1f)
-            
-            // Arm glow
-            drawPath(
-                path = path,
-                color = armColor.copy(alpha = 0.4f),
-                style = Stroke(width = radius * 0.15f)
-            )
-            
-            // Arm solid
-            drawPath(
-                path = path,
-                color = armColor.copy(alpha = 0.8f),
-                style = Stroke(width = radius * 0.08f)
-            )
-        }
 
-        // Rainbow particles
-        for (i in 0 until 30) {
-            val angle = (i * 12f + rotation * 2f) * PI.toFloat() / 180f
-            val distance = radius * ((i % 10) / 10f) * 0.85f
-            val hue = (colorFlow + i * 12f) % 360f
-            val particleColor = Color.hsv(hue, 1f, 1f)
-            
-            drawCircle(
-                color = particleColor.copy(alpha = 0.8f),
-                radius = radius * 0.04f,
-                center = Offset(
-                    centerX + cos(angle) * distance,
-                    centerY + sin(angle) * distance
-                )
-            )
-        }
-
-        // Central bright spot
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color.White,
-                    Color.hsv(colorFlow % 360f, 0.6f, 1f, 0.6f),
-                    Color.Transparent
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius * 0.3f
-            ),
-            radius = radius * 0.3f,
-            center = Offset(centerX, centerY)
-        )
-    }
-}
-
-// ==================== BUBBLE 27: SMOKE BUBBLE ====================
-@Composable
-fun SmokeBubble(modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "smoke")
-    val smokeRise by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(4000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "smokeRise"
-    )
-    val wispFlow by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 2 * PI.toFloat(),
-        animationSpec = infiniteRepeatable(
-            animation = tween(6000, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "wispFlow"
-    )
-    val opacity by infiniteTransition.animateFloat(
-        initialValue = 0.5f,
-        targetValue = 0.8f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "opacity"
-    )
-
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val centerX = size.width / 2
-        val centerY = size.height / 2
-        val radius = min(size.width, size.height) / 2.5f
-
-        // Dark smoky gradient
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color(0xFF4A4A4A),
-                    Color(0xFF2A2A2A),
-                    Color(0xFF1A1A1A)
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius
-            ),
-            radius = radius,
-            center = Offset(centerX, centerY)
-        )
-
-        // Rising smoke wisps
-        for (wisp in 0 until 8) {
-            val wispAngle = (wisp * 45f) * PI.toFloat() / 180f
-            val riseProgress = (smokeRise + wisp * 0.125f) % 1f
-            val baseX = centerX + cos(wispAngle) * radius * 0.3f
-            val baseY = centerY + radius * 0.5f
-            
-            val path = Path()
-            path.moveTo(baseX, baseY)
-            
-            for (seg in 0..10) {
-                val segProgress = seg / 10f * riseProgress
-                val flowOffset = sin(wispFlow + wisp + segProgress * PI.toFloat() * 2f) * radius * 0.2f
-                val x = baseX + flowOffset
-                val y = baseY - segProgress * radius * 1.5f
-                path.lineTo(x, y)
+            Spacer(modifier = Modifier.height(8.dp))
+            Box(modifier = Modifier.fillMaxWidth()) {
+                SnackbarHost(hostState = snackbarHostState)
             }
-            
-            val wispAlpha = (1f - riseProgress) * opacity
-            
-            // Smoke trail
-            drawPath(
-                path = path,
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        Color(0xFFAAAAAA).copy(alpha = wispAlpha * 0.6f),
-                        Color(0xFF888888).copy(alpha = wispAlpha * 0.4f),
-                        Color(0xFF666666).copy(alpha = wispAlpha * 0.2f),
-                        Color.Transparent
-                    ),
-                    start = Offset(baseX, baseY),
-                    end = Offset(baseX, baseY - riseProgress * radius * 1.5f)
-                ),
-                style = Stroke(width = radius * 0.15f * (1f - riseProgress * 0.5f))
-            )
         }
+    }
 
-        // Smoke puffs
-        for (i in 0 until 15) {
-            val puffAngle = (i * 24f) * PI.toFloat() / 180f
-            val puffProgress = (smokeRise + i * 0.067f) % 1f
-            val puffX = centerX + cos(puffAngle + wispFlow) * radius * 0.5f * (1f + puffProgress * 0.5f)
-            val puffY = centerY - puffProgress * radius * 0.8f
-            val puffSize = radius * 0.2f * (1f + puffProgress)
-            val puffAlpha = (1f - puffProgress) * 0.5f * opacity
-            
-            drawCircle(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        Color(0xFF999999).copy(alpha = puffAlpha),
-                        Color(0xFF666666).copy(alpha = puffAlpha * 0.5f),
-                        Color.Transparent
-                    ),
-                    center = Offset(puffX, puffY),
-                    radius = puffSize
-                ),
-                radius = puffSize,
-                center = Offset(puffX, puffY)
-            )
-        }
+    // Purchase Dialog (for buyable items)
+    if (showConfirm && pendingBuyId != 0 && pendingBuyId != 10) {
+        BubblePurchaseDialog(
+            bubbleId = pendingBuyId,
+            bubbleName = getBubbleName(pendingBuyId),
+            price = prices[pendingBuyId] ?: 0,
+            isLuxPriced = pendingBuyId >= 6,
+            onConfirm = {
+                val id = pendingBuyId
+                val isLuxPriced = id >= 6
+                val price = prices[id] ?: 0
 
-        // Ethereal glow
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color.White.copy(alpha = 0.1f * opacity),
-                    Color(0xFF888888).copy(alpha = 0.05f * opacity),
-                    Color.Transparent
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius * 0.6f
-            ),
-            radius = radius * 0.6f,
-            center = Offset(centerX, centerY)
+                setPurchased(id, true)
+                equippedBubbleLocal = id
+                selectedBubble = id
+                showConfirm = false
+
+                coroutineScope.launch {
+                    withContext(Dispatchers.IO) {
+                        try {
+                            val ok = if (isLuxPriced) {
+                                ds.buyBubbleWithLux(id, price)
+                            } else {
+                                ds.buyBubble(id, price)
+                            }
+                            if (ok) {
+                                snackbarHostState.showSnackbar("🎉 Purchased!")
+                            } else {
+                                val actualPurchased = ds.isBubblePurchasedFlow(id).first()
+                                val actualEquipped = ds.equippedBubbleFlow().first()
+                                setPurchased(id, actualPurchased)
+                                equippedBubbleLocal = actualEquipped
+                                snackbarHostState. showSnackbar("❌ Not enough resources")
+                            }
+                        } catch (e: Exception) {
+                            val actualPurchased = ds.isBubblePurchasedFlow(id).first()
+                            val actualEquipped = ds.equippedBubbleFlow().first()
+                            setPurchased(id, actualPurchased)
+                            equippedBubbleLocal = actualEquipped
+                            snackbarHostState.showSnackbar("Error:  ${e.localizedMessage ?: "unknown"}")
+                        }
+                    }
+                }
+            },
+            onDismiss = { showConfirm = false }
+        )
+    }
+
+    // Level Lock Dialog
+    if (showLevelLockDialog) {
+        BubbleLevelLockDialog(
+            requiredLevel = 7,
+            currentLevel = currentLevel,
+            itemName = getBubbleName(levelLockTargetId),
+            onDismiss = { showLevelLockDialog = false }
         )
     }
 }
 
-// ==================== BUBBLE 28: CANDY BUBBLE ====================
+// ==================== HELPER FUNCTIONS ====================
+
+private fun getBubbleName(id: Int): String = when (id) {
+    1 -> "Golden Bubble"
+    2 -> "Rainbow Bubble"
+    3 -> "Green Bubble"
+    4 -> "Pink Bubble"
+    5 -> "Cyberpunk Bubble"
+    6 -> "Ocean Bubble"
+    7 -> "Anime Bubble"
+    8 -> "Space Bubble"
+    10 -> "🌟 Level 7 Exclusive"
+    11 -> "Fire Bubble"
+    12 -> "Ice Bubble"
+    13 -> "Electric Bubble"
+    14 -> "Nature Bubble"
+    15 -> "Galaxy Bubble"
+    16 -> "Lava Bubble"
+    17 -> "Crystal Bubble"
+    18 -> "Sunset Bubble"
+    19 -> "Midnight Bubble"
+    20 -> "Cherry Blossom Bubble"
+    21 -> "Toxic Bubble"
+    22 -> "Water Bubble"
+    23 -> "Diamond Bubble"
+    24 -> "Neon Bubble"
+    25 -> "Aurora Bubble"
+    26 -> "Rainbow Swirl Bubble"
+    27 -> "Smoke Bubble"
+    28 -> "Candy Bubble"
+    29 -> "Metal Bubble"
+    30 -> "Plasma Bubble"
+    else -> "Default Bubble"
+}
+
+private fun getBubbleDrawable(id: Int): Int = when (id) {
+    1 -> R.drawable.goldenbubble
+    2 -> R.drawable.rainbowbubble
+    3 -> R.drawable.greenbubble
+    4 -> R.drawable.pinkbubble
+    5 -> R.drawable.cyberpunkbubble
+    6 -> R.drawable.oceanbubble
+    7 -> R. drawable.animebubble1
+    8 -> R.drawable.spacebubble
+    10 -> R.drawable.levelbubble // Level 7 exclusive bubble
+    else -> R.drawable.bubble
+}
+
+private fun getBubbleRarity(id: Int): BubbleRarity = when (id) {
+    1 -> BubbleRarity.RARE
+    2 -> BubbleRarity.LEGENDARY
+    3 -> BubbleRarity.COMMON
+    4 -> BubbleRarity.COMMON
+    5 -> BubbleRarity.LEGENDARY
+    6 -> BubbleRarity.RARE
+    7 -> BubbleRarity.EPIC
+    8 -> BubbleRarity.EPIC
+    10 -> BubbleRarity.EXCLUSIVE
+    11 -> BubbleRarity.EPIC
+    12 -> BubbleRarity.EPIC
+    13 -> BubbleRarity.EPIC
+    14 -> BubbleRarity.RARE
+    15 -> BubbleRarity.LEGENDARY
+    16 -> BubbleRarity.EPIC
+    17 -> BubbleRarity.LEGENDARY
+    18 -> BubbleRarity.RARE
+    19 -> BubbleRarity.EPIC
+    20 -> BubbleRarity.RARE
+    21 -> BubbleRarity.EPIC
+    22 -> BubbleRarity.RARE
+    23 -> BubbleRarity.LEGENDARY
+    24 -> BubbleRarity.EPIC
+    25 -> BubbleRarity.LEGENDARY
+    26 -> BubbleRarity.LEGENDARY
+    27 -> BubbleRarity.RARE
+    28 -> BubbleRarity.RARE
+    29 -> BubbleRarity.EPIC
+    30 -> BubbleRarity.LEGENDARY
+    else -> BubbleRarity.COMMON
+}
+
+// Helper to check if bubble is code-generated (vs drawable)
+private fun isGeneratedBubble(id: Int): Boolean = id in 11..30
+
+// Get composable for generated bubbles
 @Composable
-fun CandyBubble(modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "candy")
-    val rotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(10000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "rotation"
+private fun GetGeneratedBubble(id: Int, modifier: Modifier = Modifier) {
+    when (id) {
+        11 -> FireBubble(modifier)
+        12 -> IceBubble(modifier)
+        13 -> ElectricBubble(modifier)
+        14 -> NatureBubble(modifier)
+        15 -> GalaxyBubble(modifier)
+        16 -> LavaBubble(modifier)
+        17 -> CrystalBubble(modifier)
+        18 -> SunsetBubble(modifier)
+        19 -> MidnightBubble(modifier)
+        20 -> CherryBlossomBubble(modifier)
+        21 -> ToxicBubble(modifier)
+        22 -> WaterBubble(modifier)
+        23 -> DiamondBubble(modifier)
+        24 -> NeonBubble(modifier)
+        25 -> AuroraBubble(modifier)
+        26 -> RainbowSwirlBubble(modifier)
+        27 -> SmokeBubble(modifier)
+        28 -> CandyBubble(modifier)
+        29 -> MetalBubble(modifier)
+        30 -> PlasmaBubble(modifier)
+    }
+}
+
+private enum class BubbleRarity(val color: Color, val label: String) {
+    COMMON(Color(0xFF9E9E9E), "Common"),
+    RARE(Color(0xFF2196F3), "Rare"),
+    EPIC(Color(0xFF9C27B0), "Epic"),
+    LEGENDARY(Color(0xFFFFD700), "Legendary"),
+    EXCLUSIVE(Color(0xFF00E676), "Exclusive")
+}
+
+private fun handleBuyOrEquip(
+    selectedBubble: Int,
+    isPurchased: Boolean,
+    isEquipped:  Boolean,
+    onEquip: (Int) -> Unit,
+    onUnequip: () -> Unit,
+    onBuy: (Int) -> Unit,
+    onNoSelection: () -> Unit
+) {
+    when {
+        selectedBubble == 0 -> onNoSelection()
+        !isPurchased -> onBuy(selectedBubble)
+        isEquipped -> onUnequip()
+        else -> onEquip(selectedBubble)
+    }
+}
+
+// ==================== STYLED TEXT ====================
+
+@Composable
+private fun BubbleStyledText(
+    text: String,
+    fontSize: Int = 16,
+    fontWeight:  FontWeight = FontWeight.Normal,
+    color:  Color = Color.White,
+    modifier:  Modifier = Modifier
+) {
+    Text(
+        text = text,
+        fontSize = fontSize. sp,
+        fontWeight = fontWeight,
+        color = color,
+        modifier = modifier,
+        style = TextStyle(
+            shadow = Shadow(
+                color = Color.Black.copy(alpha = 0.6f),
+                offset = Offset(1f, 1f),
+                blurRadius = 2f
+            )
+        )
     )
-    val floatAnimation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 2 * PI.toFloat(),
+}
+// ==================== PREVIEW PANEL ====================
+
+@Composable
+private fun BubblePreviewPanel(
+    selectedBubble: Int,
+    selectedName: String,
+    isPurchased: Boolean,
+    isEquipped: Boolean,
+    price: Int,
+    isLevelLocked: Boolean = false,
+    requiredLevel: Int = 0,
+    currentLevel: Int = 1,
+    onBuyOrEquip: () -> Unit,
+    onReset: () -> Unit
+) {
+    val rarity = getBubbleRarity(selectedBubble)
+    val infiniteTransition = rememberInfiniteTransition(label = "bubbleFloat")
+
+    val floatOffset by infiniteTransition.animateFloat(
+        initialValue = -6f,
+        targetValue = 6f,
         animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Restart
+            animation = tween(2000, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Reverse
         ),
         label = "float"
     )
-    val sparkle by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1200, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "sparkle"
-    )
 
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val centerX = size.width / 2
-        val centerY = size.height / 2
-        val radius = min(size.width, size.height) / 2.5f
-
-        // Sweet pastel gradient
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color(0xFFFFE5F0),
-                    Color(0xFFFFB6E1),
-                    Color(0xFFFF99CC),
-                    Color(0xFFFF66B2)
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius
-            ),
-            radius = radius,
-            center = Offset(centerX, centerY)
-        )
-
-        // Candy spiral stripes
-        for (stripe in 0 until 8) {
-            val path = Path()
-            val stripeAngleOffset = stripe * 45f + rotation
-            
-            var firstPoint = true
-            for (point in 0..30) {
-                val spiralProgress = point / 30f
-                val spiralAngle = (stripeAngleOffset + spiralProgress * 360f) * PI.toFloat() / 180f
-                val spiralDistance = radius * spiralProgress * 0.9f
-                
-                val x = centerX + cos(spiralAngle) * spiralDistance
-                val y = centerY + sin(spiralAngle) * spiralDistance
-                
-                if (firstPoint) {
-                    path.moveTo(x, y)
-                    firstPoint = false
-                } else {
-                    path.lineTo(x, y)
-                }
-            }
-            
-            val stripeColor = if (stripe % 2 == 0) Color(0xFFFF1493) else Color(0xFFFFFFFF)
-            
-            drawPath(
-                path = path,
-                color = stripeColor.copy(alpha = 0.7f),
-                style = Stroke(width = radius * 0.12f)
-            )
-        }
-
-        // Floating candy pieces
-        for (i in 0 until 12) {
-            val candyAngle = (i * 30f) * PI.toFloat() / 180f
-            val floatOffset = sin(floatAnimation + i) * radius * 0.1f
-            val candyDistance = radius * 0.6f + floatOffset
-            val candyX = centerX + cos(candyAngle) * candyDistance
-            val candyY = centerY + sin(candyAngle) * candyDistance
-            
-            val candyColors = listOf(
-                Color(0xFFFF6B9D),
-                Color(0xFFFFC0CB),
-                Color(0xFF98D8C8),
-                Color(0xFFFFD93D)
-            )
-            val candyColor = candyColors[i % 4]
-            
-            // Candy piece
-            drawCircle(
-                color = candyColor.copy(alpha = 0.9f),
-                radius = radius * 0.08f,
-                center = Offset(candyX, candyY)
-            )
-            
-            // Candy shine
-            drawCircle(
-                color = Color.White.copy(alpha = 0.6f),
-                radius = radius * 0.03f,
-                center = Offset(candyX - radius * 0.03f, candyY - radius * 0.03f)
-            )
-        }
-
-        // Sparkles
-        for (i in 0 until 15) {
-            val sparkleAngle = (i * 24f + rotation) * PI.toFloat() / 180f
-            val sparkleDistance = radius * (0.4f + (i % 4) * 0.15f)
-            val sparkleAlpha = if (i % 2 == 0) sparkle else 1f - sparkle
-            
-            // Star sparkle
-            for (ray in 0 until 4) {
-                val rayAngle = sparkleAngle + (ray * 90f) * PI.toFloat() / 180f
-                drawLine(
-                    color = Color.White.copy(alpha = sparkleAlpha * 0.8f),
-                    start = Offset(
-                        centerX + cos(sparkleAngle) * sparkleDistance,
-                        centerY + sin(sparkleAngle) * sparkleDistance
-                    ),
-                    end = Offset(
-                        centerX + cos(sparkleAngle) * sparkleDistance + cos(rayAngle) * radius * 0.06f,
-                        centerY + sin(sparkleAngle) * sparkleDistance + sin(rayAngle) * radius * 0.06f
-                    ),
-                    strokeWidth = 2f
-                )
-            }
-        }
-    }
-}
-
-// ==================== BUBBLE 29: METAL BUBBLE ====================
-@Composable
-fun MetalBubble(modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "metal")
-    val reflectionMove by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(4000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "reflectionMove"
-    )
-    val chromeShine by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 2 * PI.toFloat(),
-        animationSpec = infiniteRepeatable(
-            animation = tween(6000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "chromeShine"
-    )
-    val metalPulse by infiniteTransition.animateFloat(
-        initialValue = 0.9f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "metalPulse"
-    )
-
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val centerX = size.width / 2
-        val centerY = size.height / 2
-        val radius = min(size.width, size.height) / 2.5f
-
-        // Base metallic gradient
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color(0xFFE8E8E8),
-                    Color(0xFFC0C0C0),
-                    Color(0xFF909090),
-                    Color(0xFF606060)
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius
-            ),
-            radius = radius,
-            center = Offset(centerX, centerY)
-        )
-
-        // Chrome reflection bands
-        for (band in 0 until 5) {
-            val bandProgress = (reflectionMove + band * 0.2f) % 1f
-            val bandY = centerY - radius + bandProgress * radius * 2f
-            val bandHeight = radius * 0.15f
-            
-            drawRect(
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color.Transparent,
-                        Color.White.copy(alpha = 0.6f * metalPulse),
-                        Color.Transparent
-                    ),
-                    startY = bandY - bandHeight,
-                    endY = bandY + bandHeight
-                ),
-                topLeft = Offset(centerX - radius, bandY - bandHeight),
-                size = androidx.compose.ui.geometry.Size(radius * 2f, bandHeight * 2f)
-            )
-        }
-
-        // Circular chrome reflections
-        for (i in 0 until 8) {
-            val angle = (i * 45f) * PI.toFloat() / 180f
-            val shinePhase = sin(chromeShine + i) * 0.5f + 0.5f
-            val shineDistance = radius * 0.7f
-            
-            drawCircle(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        Color.White.copy(alpha = 0.7f * shinePhase * metalPulse),
-                        Color.White.copy(alpha = 0.3f * shinePhase * metalPulse),
-                        Color.Transparent
-                    ),
-                    center = Offset(
-                        centerX + cos(angle) * shineDistance,
-                        centerY + sin(angle) * shineDistance
-                    ),
-                    radius = radius * 0.2f
-                ),
-                radius = radius * 0.2f,
-                center = Offset(
-                    centerX + cos(angle) * shineDistance,
-                    centerY + sin(angle) * shineDistance
+                        Color(0xFF2A1A4A).copy(alpha = 0.5f),
+                        Color(0xFF1A1A2E)
+                    )
                 )
             )
+            .padding(16.dp)
+    ) {
+        // Header
+        Row(
+            modifier = Modifier. fillMaxWidth(),
+            horizontalArrangement = Arrangement. SpaceBetween,
+            verticalAlignment = Alignment. CenterVertically
+        ) {
+            Column {
+                BubbleStyledText(
+                    text = "✨ Preview",
+                    fontSize = 12,
+                    color = Color.White. copy(alpha = 0.7f)
+                )
+                BubbleStyledText(
+                    text = selectedName,
+                    fontSize = 18,
+                    fontWeight = FontWeight. Bold
+                )
+            }
+
+            if (selectedBubble > 0) {
+                RarityBadge(rarity = rarity)
+            }
         }
 
-        // Polished metal highlights
-        for (highlight in 0 until 3) {
-            val highlightAngle = (highlight * 120f + chromeShine * 180f / PI.toFloat()) * PI.toFloat() / 180f
-            val highlightDist = radius * 0.5f
-            
-            drawLine(
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        Color.Transparent,
-                        Color.White.copy(alpha = 0.8f * metalPulse),
-                        Color.Transparent
-                    ),
-                    start = Offset(
-                        centerX + cos(highlightAngle - 0.3f) * highlightDist,
-                        centerY + sin(highlightAngle - 0.3f) * highlightDist
-                    ),
-                    end = Offset(
-                        centerX + cos(highlightAngle + 0.3f) * highlightDist,
-                        centerY + sin(highlightAngle + 0.3f) * highlightDist
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Preview Box
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .clip(RoundedCornerShape(16.dp))
+                .background(
+                    brush = Brush. radialGradient(
+                        colors = listOf(
+                            rarity.color. copy(alpha = 0.15f),
+                            Color(0xFF0A0A15).copy(alpha = 0.8f)
+                        )
                     )
+                )
+                .border(
+                    width = 2.dp,
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            rarity.color.copy(alpha = 0.5f),
+                            rarity.color.copy(alpha = 0.2f)
+                        )
+                    ),
+                    shape = RoundedCornerShape(16.dp)
                 ),
-                start = Offset(
-                    centerX + cos(highlightAngle - 0.3f) * highlightDist,
-                    centerY + sin(highlightAngle - 0.3f) * highlightDist
+            contentAlignment = Alignment.Center
+        ) {
+            BubbleParticlesBackground(rarityColor = rarity.color)
+
+            // Display generated bubble or drawable
+            if (isGeneratedBubble(selectedBubble)) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(20.dp)
+                        .graphicsLayer {
+                            translationY = floatOffset
+                        }
+                        .alpha(if (isLevelLocked) 0.5f else 1f)
+                ) {
+                    GetGeneratedBubble(id = selectedBubble)
+                }
+            } else {
+                val drawable = getBubbleDrawable(selectedBubble)
+                Image(
+                    painter = painterResource(id = drawable),
+                    contentDescription = "bubble_preview",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(20.dp)
+                        .graphicsLayer {
+                            translationY = floatOffset
+                        }
+                        .alpha(if (isLevelLocked) 0.5f else 1f),
+                    contentScale = ContentScale.Fit
+                )
+            }
+
+            // Level lock overlay
+            if (isLevelLocked) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        . background(Color. Black.copy(alpha = 0.6f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(text = "🔒", fontSize = 48. sp)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        BubbleStyledText(
+                            text = "Reach Level $requiredLevel",
+                            fontSize = 16,
+                            fontWeight = FontWeight. Bold,
+                            color = Color(0xFFFFD700)
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        BubbleStyledText(
+                            text = "Current:  Level $currentLevel",
+                            fontSize = 12,
+                            color = Color. White.copy(alpha = 0.7f)
+                        )
+                    }
+                }
+            }
+
+            // Equipped badge
+            if (isEquipped && ! isLevelLocked) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        . padding(8.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color(0xFF4CAF50))
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = "✓ EQUIPPED",
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight. Bold,
+                        color = Color.White
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Status Info
+        if (selectedBubble > 0) {
+            if (isLevelLocked) {
+                BubbleLevelLockInfo(requiredLevel = requiredLevel, currentLevel = currentLevel)
+            } else {
+                BubbleStatusInfo(
+                    isPurchased = isPurchased,
+                    isEquipped = isEquipped,
+                    price = price,
+                    isLuxPriced = selectedBubble in 6..8,
+                    isLevelUnlock = selectedBubble == 10
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Action Buttons
+        Row(
+            modifier = Modifier. fillMaxWidth(),
+            horizontalArrangement = Arrangement. spacedBy(8.dp)
+        ) {
+            Button(
+                onClick = onBuyOrEquip,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(48.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = when {
+                        selectedBubble == 0 -> Color(0xFF666666)
+                        isLevelLocked -> Color(0xFF9C27B0)
+                        ! isPurchased -> Color(0xFFFF6D00)
+                        isEquipped -> Color(0xFFFF5252)
+                        else -> Color(0xFF4CAF50)
+                    }
                 ),
-                end = Offset(
-                    centerX + cos(highlightAngle + 0.3f) * highlightDist,
-                    centerY + sin(highlightAngle + 0.3f) * highlightDist
-                ),
-                strokeWidth = radius * 0.2f
+                elevation = ButtonDefaults. buttonElevation(defaultElevation = 4.dp)
+            ) {
+                when {
+                    selectedBubble == 0 -> {
+                        BubbleStyledText(text = "Select", fontSize = 14, fontWeight = FontWeight. Bold)
+                    }
+                    isLevelLocked -> {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = "🔒", fontSize = 14. sp)
+                            Spacer(modifier = Modifier.width(6.dp))
+                            BubbleStyledText(text = "Level $requiredLevel Required", fontSize = 12, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                    !isPurchased && selectedBubble != 10 -> {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            BubbleStyledText(text = "BUY $price", fontSize = 14, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Image(
+                                painter = painterResource(
+                                    id = if (selectedBubble >= 6) R.drawable.gemgame else R.drawable.coin
+                                ),
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
+                    isEquipped -> {
+                        BubbleStyledText(text = "UNEQUIP", fontSize = 14, fontWeight = FontWeight.Bold)
+                    }
+                    else -> {
+                        BubbleStyledText(text = "✓ EQUIP", fontSize = 14, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+
+            Button(
+                onClick = onReset,
+                modifier = Modifier
+                    .width(70.dp)
+                    .height(48.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF424242)),
+                elevation = ButtonDefaults. buttonElevation(defaultElevation = 4.dp)
+            ) {
+                BubbleStyledText(text = "↺", fontSize = 20, fontWeight = FontWeight.Bold)
+            }
+        }
+    }
+}
+
+// ==================== LEVEL LOCK INFO ====================
+
+@Composable
+private fun BubbleLevelLockInfo(requiredLevel: Int, currentLevel: Int) {
+    val progress = (currentLevel. toFloat() / requiredLevel.toFloat()).coerceIn(0f, 1f)
+
+    Card(
+        modifier = Modifier. fillMaxWidth(),
+        shape = RoundedCornerShape(10.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFF9C27B0).copy(alpha = 0.2f)
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text = "⭐", fontSize = 16. sp)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Level $requiredLevel Exclusive",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight. Bold,
+                    color = Color(0xFFFFD700)
+                )
+            }
+
+            Spacer(modifier = Modifier. height(8.dp))
+
+            // Progress bar
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(Color. White. copy(alpha = 0.1f))
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(progress)
+                        . height(8.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(Color(0xFFFF6D00), Color(0xFFFFD700))
+                            )
+                        )
+                )
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "Your Level: $currentLevel / $requiredLevel",
+                fontSize = 11.sp,
+                color = Color. White.copy(alpha = 0.7f)
+            )
+
+            Spacer(modifier = Modifier. height(4.dp))
+
+            Text(
+                text = "🎮 Keep playing to level up!",
+                fontSize = 10.sp,
+                color = Color(0xFF00E676)
             )
         }
+    }
+}
 
-        // Central brilliant reflection
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color.White.copy(alpha = 0.9f * metalPulse),
-                    Color(0xFFE0E0E0).copy(alpha = 0.6f * metalPulse),
-                    Color.Transparent
-                ),
-                center = Offset(centerX - radius * 0.2f, centerY - radius * 0.3f),
-                radius = radius * 0.4f
-            ),
-            radius = radius * 0.4f,
-            center = Offset(centerX - radius * 0.2f, centerY - radius * 0.3f)
+// ==================== RARITY BADGE ====================
+
+@Composable
+private fun RarityBadge(rarity: BubbleRarity) {
+    val infiniteTransition = rememberInfiniteTransition(label = "rarityGlow")
+    val glowAlpha by infiniteTransition. animateFloat(
+        initialValue = 0.5f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "glow"
+    )
+
+    Box(
+        modifier = Modifier
+            . clip(RoundedCornerShape(8.dp))
+            .background(rarity.color.copy(alpha = 0.2f))
+            .border(
+                width = 1.dp,
+                color = rarity.color.copy(alpha = glowAlpha),
+                shape = RoundedCornerShape(8.dp)
+            )
+            .padding(horizontal = 10.dp, vertical = 4.dp)
+    ) {
+        Text(
+            text = rarity. label. uppercase(),
+            fontSize = 10.sp,
+            fontWeight = FontWeight.Bold,
+            color = rarity.color
         )
     }
 }
 
-// ==================== BUBBLE 30: PLASMA BUBBLE ====================
+// ==================== STATUS INFO ====================
+
 @Composable
-fun PlasmaBubble(modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "plasma")
-    val plasmaFlow by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 2 * PI.toFloat(),
-        animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "plasmaFlow"
-    )
-    val energyPulse by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(500, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "energyPulse"
-    )
-    val chaosRotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(5000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "chaosRotation"
-    )
-    val colorShift by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(4000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "colorShift"
-    )
-
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val centerX = size.width / 2
-        val centerY = size.height / 2
-        val radius = min(size.width, size.height) / 2.5f
-
-        // Dark energy core
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color(0xFF4A0080),
-                    Color(0xFF2A0050),
-                    Color(0xFF1A0030),
-                    Color(0xFF000000)
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius
-            ),
-            radius = radius,
-            center = Offset(centerX, centerY)
+private fun BubbleStatusInfo(
+    isPurchased: Boolean,
+    isEquipped: Boolean,
+    price: Int,
+    isLuxPriced: Boolean,
+    isLevelUnlock: Boolean = false
+) {
+    Card(
+        modifier = Modifier. fillMaxWidth(),
+        shape = RoundedCornerShape(10.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFF0F0F1A).copy(alpha = 0.7f)
         )
-
-        // Plasma tendrils
-        for (tendril in 0 until 12) {
-            val tendrilAngle = (tendril * 30f + chaosRotation) * PI.toFloat() / 180f
-            val path = Path()
-            path.moveTo(centerX, centerY)
-            
-            for (seg in 0..15) {
-                val progress = seg / 15f
-                val distance = radius * progress * (0.8f + energyPulse * 0.2f)
-                val chaos = sin(plasmaFlow + seg * 0.5f + tendril) * radius * 0.2f
-                val perpAngle = tendrilAngle + PI.toFloat() / 2f
-                
-                val x = centerX + cos(tendrilAngle) * distance + cos(perpAngle) * chaos
-                val y = centerY + sin(tendrilAngle) * distance + sin(perpAngle) * chaos
-                
-                path.lineTo(x, y)
-            }
-            
-            val hue = (colorShift + tendril * 30f) % 360f
-            val tendrilColor = Color.hsv(hue, 1f, 1f)
-            
-            // Tendril glow
-            drawPath(
-                path = path,
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        tendrilColor.copy(alpha = 0.8f * energyPulse),
-                        tendrilColor.copy(alpha = 0.4f),
-                        Color.Transparent
-                    ),
-                    start = Offset(centerX, centerY),
-                    end = Offset(
-                        centerX + cos(tendrilAngle) * radius,
-                        centerY + sin(tendrilAngle) * radius
-                    )
-                ),
-                style = Stroke(width = radius * 0.08f)
-            )
-            
-            // Bright core
-            drawPath(
-                path = path,
-                color = Color.White.copy(alpha = 0.9f * energyPulse),
-                style = Stroke(width = 2f)
-            )
-        }
-
-        // Energy particles
-        for (i in 0 until 40) {
-            val particleAngle = (i * 9f + chaosRotation * 2f) * PI.toFloat() / 180f
-            val particleDistance = radius * ((i % 10) / 10f) * (0.7f + sin(plasmaFlow + i) * 0.3f)
-            val hue = (colorShift + i * 9f) % 360f
-            val particleColor = Color.hsv(hue, 1f, 1f)
-            
-            drawCircle(
-                color = particleColor.copy(alpha = 0.8f * energyPulse),
-                radius = radius * 0.03f,
-                center = Offset(
-                    centerX + cos(particleAngle) * particleDistance,
-                    centerY + sin(particleAngle) * particleDistance
+    ) {
+        Row(
+            modifier = Modifier
+                . fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Status
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "Status",
+                    fontSize = 11.sp,
+                    color = Color. White.copy(alpha = 0.6f)
                 )
-            )
-            
-            // Particle trail
-            drawLine(
-                color = particleColor.copy(alpha = 0.4f * energyPulse),
-                start = Offset(centerX, centerY),
-                end = Offset(
-                    centerX + cos(particleAngle) * particleDistance,
-                    centerY + sin(particleAngle) * particleDistance
-                ),
-                strokeWidth = 1f
-            )
-        }
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = when {
+                        isEquipped -> "Equipped"
+                        isPurchased -> "Owned"
+                        else -> "Locked"
+                    },
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = when {
+                        isEquipped -> Color(0xFF4CAF50)
+                        isPurchased -> Color(0xFF2196F3)
+                        else -> Color(0xFFFF5252)
+                    }
+                )
+            }
 
-        // Central plasma core
+            Box(
+                modifier = Modifier
+                    .width(1.dp)
+                    .height(30.dp)
+                    .background(Color.White.copy(alpha = 0.2f))
+            )
+
+            // Price/Unlock
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = if (isLevelUnlock) "Unlock" else "Price",
+                    fontSize = 11.sp,
+                    color = Color.White.copy(alpha = 0.6f)
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+
+                if (isLevelUnlock) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = "⭐", fontSize = 12.sp)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = if (isPurchased) "UNLOCKED" else "Level 7",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isPurchased) Color(0xFF4CAF50) else Color(0xFFFFD700)
+                        )
+                    }
+                } else {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = if (isPurchased) "OWNED" else "$price",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isPurchased) Color(0xFF4CAF50) else Color(0xFFFFD700)
+                        )
+                        if (! isPurchased) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Image(
+                                painter = painterResource(
+                                    id = if (isLuxPriced) R.drawable.gemgame else R. drawable.coin
+                                ),
+                                contentDescription = null,
+                                modifier = Modifier.size(14.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ==================== PARTICLES BACKGROUND ====================
+
+@Composable
+private fun BubbleParticlesBackground(rarityColor: Color) {
+    val infiniteTransition = rememberInfiniteTransition(label = "particles")
+
+    val particle1Y by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(4000, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "p1"
+    )
+
+    val particle2Y by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(3000, delayMillis = 500, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "p2"
+    )
+
+    Canvas(modifier = Modifier.fillMaxSize().alpha(0.4f)) {
+        val particleColor = rarityColor. copy(alpha = 0.3f)
+
         drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color.White.copy(alpha = 0.9f * energyPulse),
-                    Color(0xFFFF00FF).copy(alpha = 0.7f * energyPulse),
-                    Color(0xFF8000FF).copy(alpha = 0.4f),
-                    Color.Transparent
-                ),
-                center = Offset(centerX, centerY),
-                radius = radius * 0.4f
-            ),
-            radius = radius * 0.4f,
-            center = Offset(centerX, centerY)
+            color = particleColor,
+            radius = 6f,
+            center = Offset(size.width * 0.2f, size.height * particle1Y)
         )
 
-        // Outer energy ring
         drawCircle(
-            color = Color.White.copy(alpha = 0.6f * energyPulse),
-            radius = radius * (0.95f + energyPulse * 0.05f),
-            center = Offset(centerX, centerY),
-            style = Stroke(width = 3f)
+            color = particleColor,
+            radius = 4f,
+            center = Offset(size. width * 0.7f, size.height * particle2Y)
+        )
+
+        drawCircle(
+            color = particleColor,
+            radius = 8f,
+            center = Offset(size.width * 0.5f, size.height * ((particle1Y + particle2Y) / 2))
         )
     }
+}
+
+// ==================== SELECTOR PANEL ====================
+
+@Composable
+private fun BubbleSelectorPanel(
+    equippedBubble: Int,
+    selectedBubble: Int,
+    onSelect: (Int) -> Unit,
+    onQuickBuy: (Int) -> Unit,
+    isPurchasedProvider: (Int) -> Boolean,
+    prices: Map<Int, Int>,
+    isLevel7BubbleUnlocked: Boolean = false,
+    currentLevel: Int = 1
+) {
+    // Include ID 10 (Level 7 exclusive) and new generated bubbles (11-30)
+    val bubbleList = listOf(1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30)
+    val scroll = rememberScrollState()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF1A1A2E),
+                        Color(0xFF2A1A4A).copy(alpha = 0.5f)
+                    )
+                )
+            )
+            .padding(12.dp)
+    ) {
+        // Header
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            BubbleStyledText(
+                text = "🎯 Collection",
+                fontSize = 16,
+                fontWeight = FontWeight.Bold
+            )
+
+            Text(
+                text = "${bubbleList.count { isPurchasedProvider(it) }}/${bubbleList. size}",
+                fontSize = 12. sp,
+                color = Color.White. copy(alpha = 0.6f)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // List
+        Column(
+            modifier = Modifier
+                . fillMaxSize()
+                .verticalScroll(scroll),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            bubbleList.forEach { id ->
+                val isLevelLockItem = id == 10
+                val isPurchased = if (isLevelLockItem) isLevel7BubbleUnlocked else isPurchasedProvider(id)
+
+                BubbleSelectorItem(
+                    id = id,
+                    name = getBubbleName(id),
+                    drawableId = getBubbleDrawable(id),
+                    rarity = getBubbleRarity(id),
+                    isPurchased = isPurchased,
+                    isEquipped = equippedBubble == id,
+                    isSelected = selectedBubble == id,
+                    price = prices[id] ?: 0,
+                    isLevelLocked = isLevelLockItem && ! isLevel7BubbleUnlocked,
+                    requiredLevel = if (isLevelLockItem) 7 else 0,
+                    currentLevel = currentLevel,
+                    onSelect = { onSelect(id) },
+                    onQuickBuy = { onQuickBuy(id) }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+        }
+    }
+}
+
+// ==================== SELECTOR ITEM ====================
+
+@Composable
+private fun BubbleSelectorItem(
+    id: Int,
+    name: String,
+    drawableId: Int,
+    rarity: BubbleRarity,
+    isPurchased: Boolean,
+    isEquipped: Boolean,
+    isSelected: Boolean,
+    price: Int,
+    isLevelLocked: Boolean = false,
+    requiredLevel: Int = 0,
+    currentLevel: Int = 1,
+    onSelect: () -> Unit,
+    onQuickBuy:  () -> Unit
+) {
+    val scale by animateFloatAsState(
+        targetValue = if (isSelected) 1.02f else 1f,
+        animationSpec = spring(dampingRatio = 0.6f),
+        label = "itemScale"
+    )
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(76.dp)
+            .scale(scale)
+            .clickable { onSelect() },
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults. cardColors(
+            containerColor = if (isSelected)
+                rarity.color.copy(alpha = 0.15f)
+            else
+                Color(0xFF0F0F1A).copy(alpha = 0.6f)
+        ),
+        elevation = CardDefaults. cardElevation(
+            defaultElevation = if (isSelected) 6.dp else 2.dp
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .then(
+                    if (isSelected) {
+                        Modifier.border(
+                            width = 2.dp,
+                            brush = Brush.linearGradient(
+                                colors = listOf(rarity.color, rarity.color.copy(alpha = 0.5f))
+                            ),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                    } else Modifier
+                )
+                .padding(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Thumbnail
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(
+                        brush = Brush.radialGradient(
+                            colors = listOf(
+                                rarity.color.copy(alpha = 0.2f),
+                                Color. Transparent
+                            )
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                // Display generated bubble or drawable
+                if (isGeneratedBubble(id)) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(4.dp)
+                            .alpha(if (isLevelLocked) 0.4f else 1f)
+                    ) {
+                        GetGeneratedBubble(id = id)
+                    }
+                } else {
+                    Image(
+                        painter = painterResource(id = drawableId),
+                        contentDescription = "bubble_$id",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(4.dp)
+                            .alpha(if (isLevelLocked) 0.4f else 1f),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+
+                // Lock overlay
+                if (isLevelLocked) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            . background(Color.Black.copy(alpha = 0.5f))
+                            .clip(RoundedCornerShape(10.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(text = "⭐", fontSize = 14.sp)
+                        }
+                    }
+                } else if (! isPurchased) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black. copy(alpha = 0.4f))
+                            .clip(RoundedCornerShape(10.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "🔒", fontSize = 16.sp)
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.width(10.dp))
+
+            // Info
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = name,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+
+                Spacer(modifier = Modifier. height(2.dp))
+
+                // Rarity
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(6.dp)
+                            .clip(CircleShape)
+                            .background(rarity.color)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = rarity.label,
+                        fontSize = 10.sp,
+                        color = rarity.color
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                // Price/Status
+                if (isLevelLocked) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable { onQuickBuy() }
+                    ) {
+                        Text(text = "⭐", fontSize = 10.sp)
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(
+                            text = "Level $requiredLevel",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight. Bold,
+                            color = Color(0xFFFFD700)
+                        )
+                    }
+                } else if (isPurchased) {
+                    Text(
+                        text = "✓ Owned",
+                        fontSize = 10.sp,
+                        color = Color(0xFF4CAF50)
+                    )
+                } else {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable { onQuickBuy() }
+                    ) {
+                        Text(
+                            text = "$price",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFFFD700)
+                        )
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Image(
+                            painter = painterResource(
+                                id = if (id in 6..8) R.drawable.gemgame else R. drawable.coin
+                            ),
+                            contentDescription = null,
+                            modifier = Modifier.size(12.dp)
+                        )
+                    }
+                }
+            }
+
+            // Equipped badge
+            if (isEquipped && !isLevelLocked) {
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(Color(0xFF4CAF50))
+                        .padding(horizontal = 6.dp, vertical = 3.dp)
+                ) {
+                    Text(
+                        text = "✓",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight. Bold,
+                        color = Color.White
+                    )
+                }
+            }
+        }
+    }
+}
+
+// ==================== LEVEL LOCK DIALOG ====================
+
+@Composable
+private fun BubbleLevelLockDialog(
+    requiredLevel: Int,
+    currentLevel:  Int,
+    itemName: String,
+    onDismiss:  () -> Unit
+) {
+    val progress = (currentLevel. toFloat() / requiredLevel.toFloat()).coerceIn(0f, 1f)
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = Color(0xFF1A1A2E),
+        shape = RoundedCornerShape(20.dp),
+        title = {
+            Column(
+                modifier = Modifier. fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = "⭐", fontSize = 48.sp)
+
+                Spacer(modifier = Modifier. height(8.dp))
+
+                Text(
+                    text = "Level $requiredLevel Required",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFFFD700)
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = itemName,
+                    fontSize = 14.sp,
+                    color = Color.White. copy(alpha = 0.8f)
+                )
+            }
+        },
+        text = {
+            Column(
+                modifier = Modifier. fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFF0F0F1A).copy(alpha = 0.8f)
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment. CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Your Progress",
+                            fontSize = 12.sp,
+                            color = Color.White. copy(alpha = 0.6f)
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Level display
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = "$currentLevel",
+                                fontSize = 32.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = Color(0xFFFF6D00)
+                            )
+                            Text(
+                                text = " / $requiredLevel",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight. Bold,
+                                color = Color. White.copy(alpha = 0.5f)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        // Progress bar
+                        Box(
+                            modifier = Modifier
+                                . fillMaxWidth()
+                                .height(12.dp)
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(Color.White.copy(alpha = 0.1f))
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth(progress)
+                                    .height(12.dp)
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(
+                                        brush = Brush.horizontalGradient(
+                                            colors = listOf(Color(0xFFFF6D00), Color(0xFFFFD700))
+                                        )
+                                    )
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = "${(progress * 100).toInt()}% Complete",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight. Bold,
+                            color = Color(0xFFFFD700)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier. height(16.dp))
+
+                Text(
+                    text = "🎮 Keep playing games to earn XP and level up!",
+                    fontSize = 12.sp,
+                    color = Color(0xFF00E676),
+                    textAlign = TextAlign. Center
+                )
+
+                Spacer(modifier = Modifier. height(8.dp))
+
+                Text(
+                    text = "This exclusive bubble can only be unlocked by reaching Level $requiredLevel.  It cannot be purchased with coins or gems.",
+                    fontSize = 11.sp,
+                    color = Color. White.copy(alpha = 0.6f),
+                    textAlign = TextAlign.Center
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = onDismiss,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFF6D00)
+                )
+            ) {
+                Text(
+                    text = "Got it!",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color. White
+                )
+            }
+        }
+    )
+}
+
+// ==================== PURCHASE DIALOG ====================
+
+@Composable
+private fun BubblePurchaseDialog(
+    bubbleId: Int,
+    bubbleName: String,
+    price: Int,
+    isLuxPriced: Boolean,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val rarity = getBubbleRarity(bubbleId)
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = Color(0xFF1A1A2E),
+        shape = RoundedCornerShape(20.dp),
+        title = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "🛒 Confirm Purchase",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color. White
+                )
+
+                Spacer(modifier = Modifier. height(12.dp))
+
+                // Preview
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(rarity.color. copy(alpha = 0.15f))
+                        .border(
+                            width = 2.dp,
+                            color = rarity.color. copy(alpha = 0.5f),
+                            shape = RoundedCornerShape(12.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = getBubbleDrawable(bubbleId)),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(8.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = bubbleName,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color. White
+                )
+
+                Spacer(modifier = Modifier. height(4.dp))
+
+                RarityBadge(rarity = rarity)
+            }
+        },
+        text = {
+            Card(
+                modifier = Modifier. fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFF0F0F1A).copy(alpha = 0.8f)
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        . padding(12.dp),
+                    horizontalArrangement = Arrangement. Center,
+                    verticalAlignment = Alignment. CenterVertically
+                ) {
+                    Text(
+                        text = "Price: ",
+                        fontSize = 14.sp,
+                        color = Color.White. copy(alpha = 0.8f)
+                    )
+                    Text(
+                        text = "$price",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFFFD700)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Image(
+                        painter = painterResource(
+                            id = if (isLuxPriced) R.drawable.gemgame else R.drawable.coin
+                        ),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(44.dp),
+                shape = RoundedCornerShape(10.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF4CAF50)
+                )
+            ) {
+                Text(
+                    text = "✓ Purchase",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+        },
+        dismissButton = {
+            OutlinedButton(
+                onClick = onDismiss,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(44.dp),
+                shape = RoundedCornerShape(10.dp)
+            ) {
+                Text(
+                    text = "Cancel",
+                    fontSize = 14.sp,
+                    color = Color.White. copy(alpha = 0.8f)
+                )
+            }
+        }
+    )
 }
