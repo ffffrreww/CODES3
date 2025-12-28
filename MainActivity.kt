@@ -319,6 +319,22 @@ fun OutlinedText(
     )
 }
 
+@Composable
+private fun GeneratedMainMenuPreview(id: Int, modifier: Modifier = Modifier) {
+    when (id) {
+        11 -> NeonPulseMainMenu(modifier = modifier)
+        12 -> GeometricWavesMainMenu(modifier = modifier)
+        13 -> ParticleFieldMainMenu(modifier = modifier)
+        14 -> GradientMeshMainMenu(modifier = modifier)
+        15 -> MatrixRainMainMenu(modifier = modifier)
+        16 -> CosmicNebulaMainMenu(modifier = modifier)
+        17 -> LiquidMetalMainMenu(modifier = modifier)
+        18 -> FireIceMainMenu(modifier = modifier)
+        19 -> HoneycombMainMenu(modifier = modifier)
+        20 -> AuroraDreamsMainMenu(modifier = modifier)
+    }
+}
+
 // ==================== MAIN MENU ====================
 
 enum class MainPage { CUSTOMIZE, PLAY, CHALLENGES }
@@ -412,7 +428,6 @@ fun MainMenu(
     Box(
         modifier = Modifier
             . fillMaxSize()
-            .background(gradient)
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(
                     onDragStart = { },
@@ -437,6 +452,19 @@ fun MainMenu(
                 )
             }
     ) {
+        // Render background based on equipped main menu
+        if (equippedMainMenu >= 11) {
+            // Generated main menu backgrounds (IDs 11-20)
+            GeneratedMainMenuPreview(id = equippedMainMenu, modifier = Modifier.fillMaxSize())
+        } else {
+            // Default gradient background
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(gradient)
+            )
+        }
+        
         // Settings Button (only on PLAY page)
         if (currentPage == MainPage.PLAY) {
             Box(
