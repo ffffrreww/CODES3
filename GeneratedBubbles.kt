@@ -1896,7 +1896,7 @@ fun NeonBubble(modifier: Modifier = Modifier) {
 
         // Flowing neon lines
         for (line in 0 until 8) {
-            val lineAngle = (line * 45f) * kotlin.math.PI.toFloat() / 180f
+            val lineAngle = (line * 45f) * PI.toFloat() / 180f
             val flowProgress = (lineFlow + line * 0.125f) % 1f
             val lineLength = radius * flowProgress
             
@@ -1913,14 +1913,14 @@ fun NeonBubble(modifier: Modifier = Modifier) {
                     ),
                     start = Offset(centerX, centerY),
                     end = Offset(
-                        centerX + kotlin.math.cos(lineAngle) * lineLength,
-                        centerY + kotlin.math.sin(lineAngle) * lineLength
+                        centerX + cos(lineAngle) * lineLength,
+                        centerY + sin(lineAngle) * lineLength
                     )
                 ),
                 start = Offset(centerX, centerY),
                 end = Offset(
-                    centerX + kotlin.math.cos(lineAngle) * lineLength,
-                    centerY + kotlin.math.sin(lineAngle) * lineLength
+                    centerX + cos(lineAngle) * lineLength,
+                    centerY + sin(lineAngle) * lineLength
                 ),
                 strokeWidth = 8f
             )
@@ -1930,8 +1930,8 @@ fun NeonBubble(modifier: Modifier = Modifier) {
                 color = lineColor.copy(alpha = 0.9f * pulse),
                 start = Offset(centerX, centerY),
                 end = Offset(
-                    centerX + kotlin.math.cos(lineAngle) * lineLength,
-                    centerY + kotlin.math.sin(lineAngle) * lineLength
+                    centerX + cos(lineAngle) * lineLength,
+                    centerY + sin(lineAngle) * lineLength
                 ),
                 strokeWidth = 2f
             )
@@ -1960,7 +1960,7 @@ fun AuroraBubble(modifier: Modifier = Modifier) {
     val infiniteTransition = rememberInfiniteTransition(label = "aurora")
     val wave1 by infiniteTransition.animateFloat(
         initialValue = 0f,
-        targetValue = 2 * kotlin.math.PI.toFloat(),
+        targetValue = 2 * PI.toFloat(),
         animationSpec = infiniteRepeatable(
             animation = tween(8000, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
@@ -1969,7 +1969,7 @@ fun AuroraBubble(modifier: Modifier = Modifier) {
     )
     val wave2 by infiniteTransition.animateFloat(
         initialValue = 0f,
-        targetValue = 2 * kotlin.math.PI.toFloat(),
+        targetValue = 2 * PI.toFloat(),
         animationSpec = infiniteRepeatable(
             animation = tween(6000, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
@@ -2016,8 +2016,8 @@ fun AuroraBubble(modifier: Modifier = Modifier) {
             for (i in 0..30) {
                 val progress = i / 30f
                 val x = centerX - radius + progress * radius * 2
-                val waveOffset1 = kotlin.math.sin(wave1 + progress * kotlin.math.PI.toFloat() * 3f + layer) * radius * 0.15f
-                val waveOffset2 = kotlin.math.sin(wave2 + progress * kotlin.math.PI.toFloat() * 2f - layer) * radius * 0.1f
+                val waveOffset1 = sin(wave1 + progress * PI.toFloat() * 3f + layer) * radius * 0.15f
+                val waveOffset2 = sin(wave2 + progress * PI.toFloat() * 2f - layer) * radius * 0.1f
                 val y = layerY + waveOffset1 + waveOffset2
                 
                 path.lineTo(x, y)
@@ -2053,10 +2053,10 @@ fun AuroraBubble(modifier: Modifier = Modifier) {
 
         // Flowing particles
         for (i in 0 until 30) {
-            val angle = (i * 12f) * kotlin.math.PI.toFloat() / 180f
+            val angle = (i * 12f) * PI.toFloat() / 180f
             val distance = radius * (0.5f + (i % 5) * 0.1f)
-            val flowPhase = (wave1 + i * 0.2f) % (2 * kotlin.math.PI.toFloat())
-            val particleAlpha = 0.3f + kotlin.math.sin(flowPhase) * 0.5f
+            val flowPhase = (wave1 + i * 0.2f) % (2 * PI.toFloat())
+            val particleAlpha = 0.3f + sin(flowPhase) * 0.5f
             
             val hue = (colorShift + i * 12f) % 360f
             val particleColor = Color.hsv(hue, 0.8f, 1f)
@@ -2065,8 +2065,8 @@ fun AuroraBubble(modifier: Modifier = Modifier) {
                 color = particleColor.copy(alpha = particleAlpha),
                 radius = radius * 0.02f,
                 center = Offset(
-                    centerX + kotlin.math.cos(angle) * distance,
-                    centerY + kotlin.math.sin(angle) * distance + kotlin.math.sin(flowPhase) * radius * 0.2f
+                    centerX + cos(angle) * distance,
+                    centerY + sin(angle) * distance + sin(flowPhase) * radius * 0.2f
                 )
             )
         }
@@ -2125,11 +2125,11 @@ fun RainbowSwirlBubble(modifier: Modifier = Modifier) {
             var firstPoint = true
             for (point in 0..40) {
                 val spiralProgress = point / 40f
-                val spiralAngle = (armAngleOffset + spiralProgress * 360f) * kotlin.math.PI.toFloat() / 180f
+                val spiralAngle = (armAngleOffset + spiralProgress * 360f) * PI.toFloat() / 180f
                 val spiralDistance = radius * spiralProgress * pulse
                 
-                val x = centerX + kotlin.math.cos(spiralAngle) * spiralDistance
-                val y = centerY + kotlin.math.sin(spiralAngle) * spiralDistance
+                val x = centerX + cos(spiralAngle) * spiralDistance
+                val y = centerY + sin(spiralAngle) * spiralDistance
                 
                 if (firstPoint) {
                     path.moveTo(x, y)
@@ -2160,7 +2160,7 @@ fun RainbowSwirlBubble(modifier: Modifier = Modifier) {
 
         // Rainbow particles
         for (i in 0 until 30) {
-            val angle = (i * 12f + rotation * 2f) * kotlin.math.PI.toFloat() / 180f
+            val angle = (i * 12f + rotation * 2f) * PI.toFloat() / 180f
             val distance = radius * ((i % 10) / 10f) * 0.85f
             val hue = (colorFlow + i * 12f) % 360f
             val particleColor = Color.hsv(hue, 1f, 1f)
@@ -2169,8 +2169,8 @@ fun RainbowSwirlBubble(modifier: Modifier = Modifier) {
                 color = particleColor.copy(alpha = 0.8f),
                 radius = radius * 0.04f,
                 center = Offset(
-                    centerX + kotlin.math.cos(angle) * distance,
-                    centerY + kotlin.math.sin(angle) * distance
+                    centerX + cos(angle) * distance,
+                    centerY + sin(angle) * distance
                 )
             )
         }
@@ -2207,7 +2207,7 @@ fun SmokeBubble(modifier: Modifier = Modifier) {
     )
     val wispFlow by infiniteTransition.animateFloat(
         initialValue = 0f,
-        targetValue = 2 * kotlin.math.PI.toFloat(),
+        targetValue = 2 * PI.toFloat(),
         animationSpec = infiniteRepeatable(
             animation = tween(6000, easing = EaseInOutSine),
             repeatMode = RepeatMode.Restart
@@ -2246,9 +2246,9 @@ fun SmokeBubble(modifier: Modifier = Modifier) {
 
         // Rising smoke wisps
         for (wisp in 0 until 8) {
-            val wispAngle = (wisp * 45f) * kotlin.math.PI.toFloat() / 180f
+            val wispAngle = (wisp * 45f) * PI.toFloat() / 180f
             val riseProgress = (smokeRise + wisp * 0.125f) % 1f
-            val baseX = centerX + kotlin.math.cos(wispAngle) * radius * 0.3f
+            val baseX = centerX + cos(wispAngle) * radius * 0.3f
             val baseY = centerY + radius * 0.5f
             
             val path = Path()
@@ -2256,7 +2256,7 @@ fun SmokeBubble(modifier: Modifier = Modifier) {
             
             for (seg in 0..10) {
                 val segProgress = seg / 10f * riseProgress
-                val flowOffset = kotlin.math.sin(wispFlow + wisp + segProgress * kotlin.math.PI.toFloat() * 2f) * radius * 0.2f
+                val flowOffset = sin(wispFlow + wisp + segProgress * PI.toFloat() * 2f) * radius * 0.2f
                 val x = baseX + flowOffset
                 val y = baseY - segProgress * radius * 1.5f
                 path.lineTo(x, y)
@@ -2283,9 +2283,9 @@ fun SmokeBubble(modifier: Modifier = Modifier) {
 
         // Smoke puffs
         for (i in 0 until 15) {
-            val puffAngle = (i * 24f) * kotlin.math.PI.toFloat() / 180f
+            val puffAngle = (i * 24f) * PI.toFloat() / 180f
             val puffProgress = (smokeRise + i * 0.067f) % 1f
-            val puffX = centerX + kotlin.math.cos(puffAngle + wispFlow) * radius * 0.5f * (1f + puffProgress * 0.5f)
+            val puffX = centerX + cos(puffAngle + wispFlow) * radius * 0.5f * (1f + puffProgress * 0.5f)
             val puffY = centerY - puffProgress * radius * 0.8f
             val puffSize = radius * 0.2f * (1f + puffProgress)
             val puffAlpha = (1f - puffProgress) * 0.5f * opacity
@@ -2337,7 +2337,7 @@ fun CandyBubble(modifier: Modifier = Modifier) {
     )
     val floatAnimation by infiniteTransition.animateFloat(
         initialValue = 0f,
-        targetValue = 2 * kotlin.math.PI.toFloat(),
+        targetValue = 2 * PI.toFloat(),
         animationSpec = infiniteRepeatable(
             animation = tween(3000, easing = EaseInOutSine),
             repeatMode = RepeatMode.Restart
@@ -2383,11 +2383,11 @@ fun CandyBubble(modifier: Modifier = Modifier) {
             var firstPoint = true
             for (point in 0..30) {
                 val spiralProgress = point / 30f
-                val spiralAngle = (stripeAngleOffset + spiralProgress * 360f) * kotlin.math.PI.toFloat() / 180f
+                val spiralAngle = (stripeAngleOffset + spiralProgress * 360f) * PI.toFloat() / 180f
                 val spiralDistance = radius * spiralProgress * 0.9f
                 
-                val x = centerX + kotlin.math.cos(spiralAngle) * spiralDistance
-                val y = centerY + kotlin.math.sin(spiralAngle) * spiralDistance
+                val x = centerX + cos(spiralAngle) * spiralDistance
+                val y = centerY + sin(spiralAngle) * spiralDistance
                 
                 if (firstPoint) {
                     path.moveTo(x, y)
@@ -2408,11 +2408,11 @@ fun CandyBubble(modifier: Modifier = Modifier) {
 
         // Floating candy pieces
         for (i in 0 until 12) {
-            val candyAngle = (i * 30f) * kotlin.math.PI.toFloat() / 180f
-            val floatOffset = kotlin.math.sin(floatAnimation + i) * radius * 0.1f
+            val candyAngle = (i * 30f) * PI.toFloat() / 180f
+            val floatOffset = sin(floatAnimation + i) * radius * 0.1f
             val candyDistance = radius * 0.6f + floatOffset
-            val candyX = centerX + kotlin.math.cos(candyAngle) * candyDistance
-            val candyY = centerY + kotlin.math.sin(candyAngle) * candyDistance
+            val candyX = centerX + cos(candyAngle) * candyDistance
+            val candyY = centerY + sin(candyAngle) * candyDistance
             
             val candyColors = listOf(
                 Color(0xFFFF6B9D),
@@ -2439,22 +2439,22 @@ fun CandyBubble(modifier: Modifier = Modifier) {
 
         // Sparkles
         for (i in 0 until 15) {
-            val sparkleAngle = (i * 24f + rotation) * kotlin.math.PI.toFloat() / 180f
+            val sparkleAngle = (i * 24f + rotation) * PI.toFloat() / 180f
             val sparkleDistance = radius * (0.4f + (i % 4) * 0.15f)
             val sparkleAlpha = if (i % 2 == 0) sparkle else 1f - sparkle
             
             // Star sparkle
             for (ray in 0 until 4) {
-                val rayAngle = sparkleAngle + (ray * 90f) * kotlin.math.PI.toFloat() / 180f
+                val rayAngle = sparkleAngle + (ray * 90f) * PI.toFloat() / 180f
                 drawLine(
                     color = Color.White.copy(alpha = sparkleAlpha * 0.8f),
                     start = Offset(
-                        centerX + kotlin.math.cos(sparkleAngle) * sparkleDistance,
-                        centerY + kotlin.math.sin(sparkleAngle) * sparkleDistance
+                        centerX + cos(sparkleAngle) * sparkleDistance,
+                        centerY + sin(sparkleAngle) * sparkleDistance
                     ),
                     end = Offset(
-                        centerX + kotlin.math.cos(sparkleAngle) * sparkleDistance + kotlin.math.cos(rayAngle) * radius * 0.06f,
-                        centerY + kotlin.math.sin(sparkleAngle) * sparkleDistance + kotlin.math.sin(rayAngle) * radius * 0.06f
+                        centerX + cos(sparkleAngle) * sparkleDistance + cos(rayAngle) * radius * 0.06f,
+                        centerY + sin(sparkleAngle) * sparkleDistance + sin(rayAngle) * radius * 0.06f
                     ),
                     strokeWidth = 2f
                 )
@@ -2478,7 +2478,7 @@ fun MetalBubble(modifier: Modifier = Modifier) {
     )
     val chromeShine by infiniteTransition.animateFloat(
         initialValue = 0f,
-        targetValue = 2 * kotlin.math.PI.toFloat(),
+        targetValue = 2 * PI.toFloat(),
         animationSpec = infiniteRepeatable(
             animation = tween(6000, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
@@ -2539,8 +2539,8 @@ fun MetalBubble(modifier: Modifier = Modifier) {
 
         // Circular chrome reflections
         for (i in 0 until 8) {
-            val angle = (i * 45f) * kotlin.math.PI.toFloat() / 180f
-            val shinePhase = kotlin.math.sin(chromeShine + i) * 0.5f + 0.5f
+            val angle = (i * 45f) * PI.toFloat() / 180f
+            val shinePhase = sin(chromeShine + i) * 0.5f + 0.5f
             val shineDistance = radius * 0.7f
             
             drawCircle(
@@ -2551,22 +2551,22 @@ fun MetalBubble(modifier: Modifier = Modifier) {
                         Color.Transparent
                     ),
                     center = Offset(
-                        centerX + kotlin.math.cos(angle) * shineDistance,
-                        centerY + kotlin.math.sin(angle) * shineDistance
+                        centerX + cos(angle) * shineDistance,
+                        centerY + sin(angle) * shineDistance
                     ),
                     radius = radius * 0.2f
                 ),
                 radius = radius * 0.2f,
                 center = Offset(
-                    centerX + kotlin.math.cos(angle) * shineDistance,
-                    centerY + kotlin.math.sin(angle) * shineDistance
+                    centerX + cos(angle) * shineDistance,
+                    centerY + sin(angle) * shineDistance
                 )
             )
         }
 
         // Polished metal highlights
         for (highlight in 0 until 3) {
-            val highlightAngle = (highlight * 120f + chromeShine * 180f / kotlin.math.PI.toFloat()) * kotlin.math.PI.toFloat() / 180f
+            val highlightAngle = (highlight * 120f + chromeShine * 180f / PI.toFloat()) * PI.toFloat() / 180f
             val highlightDist = radius * 0.5f
             
             drawLine(
@@ -2577,21 +2577,21 @@ fun MetalBubble(modifier: Modifier = Modifier) {
                         Color.Transparent
                     ),
                     start = Offset(
-                        centerX + kotlin.math.cos(highlightAngle - 0.3f) * highlightDist,
-                        centerY + kotlin.math.sin(highlightAngle - 0.3f) * highlightDist
+                        centerX + cos(highlightAngle - 0.3f) * highlightDist,
+                        centerY + sin(highlightAngle - 0.3f) * highlightDist
                     ),
                     end = Offset(
-                        centerX + kotlin.math.cos(highlightAngle + 0.3f) * highlightDist,
-                        centerY + kotlin.math.sin(highlightAngle + 0.3f) * highlightDist
+                        centerX + cos(highlightAngle + 0.3f) * highlightDist,
+                        centerY + sin(highlightAngle + 0.3f) * highlightDist
                     )
                 ),
                 start = Offset(
-                    centerX + kotlin.math.cos(highlightAngle - 0.3f) * highlightDist,
-                    centerY + kotlin.math.sin(highlightAngle - 0.3f) * highlightDist
+                    centerX + cos(highlightAngle - 0.3f) * highlightDist,
+                    centerY + sin(highlightAngle - 0.3f) * highlightDist
                 ),
                 end = Offset(
-                    centerX + kotlin.math.cos(highlightAngle + 0.3f) * highlightDist,
-                    centerY + kotlin.math.sin(highlightAngle + 0.3f) * highlightDist
+                    centerX + cos(highlightAngle + 0.3f) * highlightDist,
+                    centerY + sin(highlightAngle + 0.3f) * highlightDist
                 ),
                 strokeWidth = radius * 0.2f
             )
@@ -2620,7 +2620,7 @@ fun PlasmaBubble(modifier: Modifier = Modifier) {
     val infiniteTransition = rememberInfiniteTransition(label = "plasma")
     val plasmaFlow by infiniteTransition.animateFloat(
         initialValue = 0f,
-        targetValue = 2 * kotlin.math.PI.toFloat(),
+        targetValue = 2 * PI.toFloat(),
         animationSpec = infiniteRepeatable(
             animation = tween(3000, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
@@ -2678,18 +2678,18 @@ fun PlasmaBubble(modifier: Modifier = Modifier) {
 
         // Plasma tendrils
         for (tendril in 0 until 12) {
-            val tendrilAngle = (tendril * 30f + chaosRotation) * kotlin.math.PI.toFloat() / 180f
+            val tendrilAngle = (tendril * 30f + chaosRotation) * PI.toFloat() / 180f
             val path = Path()
             path.moveTo(centerX, centerY)
             
             for (seg in 0..15) {
                 val progress = seg / 15f
                 val distance = radius * progress * (0.8f + energyPulse * 0.2f)
-                val chaos = kotlin.math.sin(plasmaFlow + seg * 0.5f + tendril) * radius * 0.2f
-                val perpAngle = tendrilAngle + kotlin.math.PI.toFloat() / 2f
+                val chaos = sin(plasmaFlow + seg * 0.5f + tendril) * radius * 0.2f
+                val perpAngle = tendrilAngle + PI.toFloat() / 2f
                 
-                val x = centerX + kotlin.math.cos(tendrilAngle) * distance + kotlin.math.cos(perpAngle) * chaos
-                val y = centerY + kotlin.math.sin(tendrilAngle) * distance + kotlin.math.sin(perpAngle) * chaos
+                val x = centerX + cos(tendrilAngle) * distance + cos(perpAngle) * chaos
+                val y = centerY + sin(tendrilAngle) * distance + sin(perpAngle) * chaos
                 
                 path.lineTo(x, y)
             }
@@ -2708,8 +2708,8 @@ fun PlasmaBubble(modifier: Modifier = Modifier) {
                     ),
                     start = Offset(centerX, centerY),
                     end = Offset(
-                        centerX + kotlin.math.cos(tendrilAngle) * radius,
-                        centerY + kotlin.math.sin(tendrilAngle) * radius
+                        centerX + cos(tendrilAngle) * radius,
+                        centerY + sin(tendrilAngle) * radius
                     )
                 ),
                 style = Stroke(width = radius * 0.08f)
@@ -2725,8 +2725,8 @@ fun PlasmaBubble(modifier: Modifier = Modifier) {
 
         // Energy particles
         for (i in 0 until 40) {
-            val particleAngle = (i * 9f + chaosRotation * 2f) * kotlin.math.PI.toFloat() / 180f
-            val particleDistance = radius * ((i % 10) / 10f) * (0.7f + kotlin.math.sin(plasmaFlow + i) * 0.3f)
+            val particleAngle = (i * 9f + chaosRotation * 2f) * PI.toFloat() / 180f
+            val particleDistance = radius * ((i % 10) / 10f) * (0.7f + sin(plasmaFlow + i) * 0.3f)
             val hue = (colorShift + i * 9f) % 360f
             val particleColor = Color.hsv(hue, 1f, 1f)
             
@@ -2734,8 +2734,8 @@ fun PlasmaBubble(modifier: Modifier = Modifier) {
                 color = particleColor.copy(alpha = 0.8f * energyPulse),
                 radius = radius * 0.03f,
                 center = Offset(
-                    centerX + kotlin.math.cos(particleAngle) * particleDistance,
-                    centerY + kotlin.math.sin(particleAngle) * particleDistance
+                    centerX + cos(particleAngle) * particleDistance,
+                    centerY + sin(particleAngle) * particleDistance
                 )
             )
             
@@ -2744,8 +2744,8 @@ fun PlasmaBubble(modifier: Modifier = Modifier) {
                 color = particleColor.copy(alpha = 0.4f * energyPulse),
                 start = Offset(centerX, centerY),
                 end = Offset(
-                    centerX + kotlin.math.cos(particleAngle) * particleDistance,
-                    centerY + kotlin.math.sin(particleAngle) * particleDistance
+                    centerX + cos(particleAngle) * particleDistance,
+                    centerY + sin(particleAngle) * particleDistance
                 ),
                 strokeWidth = 1f
             )

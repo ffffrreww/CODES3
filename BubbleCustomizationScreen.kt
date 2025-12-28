@@ -511,7 +511,7 @@ private fun getBubbleName(id: Int): String = when (id) {
 }
 
 private fun getBubbleDrawable(id: Int): Int = when (id) {
-    1 -> R.drawable. goldenbubble
+    1 -> R.drawable.goldenbubble
     2 -> R.drawable.rainbowbubble
     3 -> R.drawable.greenbubble
     4 -> R.drawable.pinkbubble
@@ -756,7 +756,7 @@ private fun BubblePreviewPanel(
                             translationY = floatOffset
                         }
                         .alpha(if (isLevelLocked) 0.5f else 1f),
-                    contentScale = ContentScale. Fit
+                    contentScale = ContentScale.Fit
                 )
             }
 
@@ -865,7 +865,7 @@ private fun BubblePreviewPanel(
                             Spacer(modifier = Modifier.width(6.dp))
                             Image(
                                 painter = painterResource(
-                                    id = if (selectedBubble >= 6) R.drawable.gemgame else R.drawable. coin
+                                    id = if (selectedBubble >= 6) R.drawable.gemgame else R.drawable.coin
                                 ),
                                 contentDescription = null,
                                 modifier = Modifier.size(16.dp)
@@ -1327,7 +1327,7 @@ private fun BubbleSelectorItem(
                             .fillMaxSize()
                             .padding(4.dp)
                             .alpha(if (isLevelLocked) 0.4f else 1f),
-                        contentScale = ContentScale. Fit
+                        contentScale = ContentScale.Fit
                     )
                 }
 
@@ -1662,7 +1662,7 @@ private fun BubblePurchaseDialog(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(8.dp),
-                        contentScale = ContentScale. Fit
+                        contentScale = ContentScale.Fit
                     )
                 }
 
