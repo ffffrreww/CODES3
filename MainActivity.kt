@@ -455,40 +455,8 @@ fun MainMenu(
         if (equippedMainMenu >= 11) {
             // Generated main menu backgrounds (IDs 11-20)
             GeneratedMainMenuPreview(id = equippedMainMenu, modifier = Modifier.fillMaxSize())
-        } else if (equippedMainMenu >= 1) {
-            // Image backgrounds for IDs 1-10
-            val mainmenuDrawable = when (equippedMainMenu) {
-                1 -> R.drawable.mainmenu1
-                2 -> R.drawable.mainmenu2
-                3 -> R.drawable.mainmenu3
-                4 -> R.drawable.mainmenu4
-                5 -> R.drawable.mainmenu5
-                6 -> R.drawable.mainmenu6
-                7 -> R.drawable.mainmenu7
-                8 -> R.drawable.mainmenu8
-                9 -> R.drawable.mainmenu9
-                10 -> R.drawable.mainmenu10
-                else -> 0
-            }
-            val mainmenuPainter = bitmapPainterResourceSafe(
-                if (mainmenuDrawable != 0) mainmenuDrawable else null
-            )
-            if (mainmenuPainter != null) {
-                Image(
-                    painter = mainmenuPainter,
-                    contentDescription = "mainmenu_background",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(gradient)
-                )
-            }
         } else {
-            // Default gradient background for equippedMainMenu == 0
+            // Default gradient background
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -772,43 +740,37 @@ fun PlayPageContent(
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Render background based on equipped main menu
-        if (equippedMainMenu >= 11) {
-            // Generated main menu backgrounds (IDs 11-20)
-            GeneratedMainMenuPreview(id = equippedMainMenu, modifier = Modifier.fillMaxSize())
-        } else {
-            val mainmenuDrawable = when (equippedMainMenu) {
-                1 -> R.drawable.mainmenu1
-                2 -> R.drawable.mainmenu2
-                3 -> R.drawable.mainmenu3
-                4 -> R.drawable.mainmenu4
-                5 -> R.drawable.mainmenu5
-                6 -> R.drawable.mainmenu6
-                7 -> R.drawable.mainmenu7
-                8 -> R.drawable.mainmenu8
-                9 -> R.drawable.mainmenu9
-                10 -> R.drawable.mainmenu10
-                else -> 0
-            }
+        val mainmenuDrawable = when (equippedMainMenu) {
+            1 -> R.drawable.mainmenu1
+            2 -> R.drawable.mainmenu2
+            3 -> R. drawable.mainmenu3
+            4 -> R.drawable. mainmenu4
+            5 -> R.drawable.mainmenu5
+            6 -> R.drawable.mainmenu6
+            7 -> R.drawable.mainmenu7
+            8 -> R. drawable.mainmenu8
+            9 -> R.drawable. mainmenu9
+            10 -> R.drawable.mainmenu10
+            else -> 0
+        }
 
-            val mainmenuPainter = bitmapPainterResourceSafe(
-                if (mainmenuDrawable != 0) mainmenuDrawable else null
+        val mainmenuPainter = bitmapPainterResourceSafe(
+            if (mainmenuDrawable != 0) mainmenuDrawable else null
+        )
+
+        if (mainmenuPainter != null) {
+            Image(
+                painter = mainmenuPainter,
+                contentDescription = "mainmenu_decor",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
             )
-
-            if (mainmenuPainter != null) {
-                Image(
-                    painter = mainmenuPainter,
-                    contentDescription = "mainmenu_decor",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(gradient)
-                )
-            }
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(gradient)
+            )
         }
 
         // Title with bubble background

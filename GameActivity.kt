@@ -1391,35 +1391,14 @@ fun GameScreen(onExit: () -> Unit) {
 
     val bubbleRes = when (equippedBubble) {
         1 -> R.drawable.goldenbubble
-        2 -> R.drawable.rainbowbubble
+        2 -> R.drawable. rainbowbubble
         3 -> R.drawable.greenbubble
-        4 -> R.drawable.pinkbubble
+        4 -> R. drawable.pinkbubble
         5 -> R.drawable.cyberpunkbubble
         6 -> R.drawable.oceanbubble
-        7 -> R.drawable.animebubble1
+        7 -> R. drawable.animebubble1
         8 -> R.drawable.spacebubble
         9 -> R.drawable.levelbubble
-        10 -> R.drawable.levelbubble
-        11 -> R.drawable.firebubble
-        12 -> R.drawable.icebubble
-        13 -> R.drawable.electricbubble
-        14 -> R.drawable.naturebubble
-        15 -> R.drawable.galaxybubble
-        16 -> R.drawable.lavabubble
-        17 -> R.drawable.crystalbubble
-        18 -> R.drawable.sunsetbubble
-        19 -> R.drawable.midnightbubble
-        20 -> R.drawable.cherryblossombubble
-        21 -> R.drawable.toxicbubble
-        22 -> R.drawable.waterbubble
-        23 -> R.drawable.diamondbubble
-        24 -> R.drawable.neonbubble
-        25 -> R.drawable.aurorabubble
-        26 -> R.drawable.rainbowswirlbubble
-        27 -> R.drawable.smokebubble
-        28 -> R.drawable.candybubble
-        29 -> R.drawable.metalbubble
-        30 -> R.drawable.plasmabubble
         else -> R.drawable.bubble
     }
     val bubblePainter = painterResource(id = bubbleRes)
